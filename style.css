@@ -1,0 +1,188 @@
+/*
+  File name: style.css
+  Author: Kim Khang Hoang
+  Date created: 10/07/2024
+*/
+
+html {
+   display: flex;
+   justify-content: center;
+   align-items: center;
+}
+
+body {
+   font-family: Verdana, Tahoma, Arial, sans-serif;
+   text-align: center;
+   background-color: #f0f0f0;
+   background-image: url('images/background.jpg');
+   background-size: cover;
+   background-position: center;
+   background-repeat: no-repeat;
+   background-attachment: fixed;
+   margin: 0;
+   padding: 0;
+}
+
+h1 {
+   margin-top: 2rem;
+}
+
+.search-bar-container {
+   margin-top: 1rem;
+}
+
+.weather-search {
+   background: white;
+   border-radius: 0.5rem;
+   box-shadow: 0 0 0.625rem rgba(0, 0, 0, 0.1);
+   padding: 1.25rem;
+   display: inline-block;
+   margin-top: 0.5rem;
+}
+
+input, button {
+   font-size: 1rem;
+   padding: 0.625rem;
+   margin: 0.3125rem;
+   border-radius: 0.25rem;
+   border: 1px solid #ccc;
+}
+
+button {
+   background-color: #007BFF;
+   color: white;
+   border: none;
+   cursor: pointer;
+}
+
+button:hover {
+   background-color: #0056b3;
+}
+
+.spinner {
+   display: none; /* Initially hidden */
+   border: 0.5rem solid whitesmoke;
+   border-radius: 50%;
+   border-top: 0.5rem solid #3498db;
+   width: 3.75rem;
+   height: 3.75rem;
+   animation: spin 2s linear infinite; /* Spinning animation */
+   margin: auto; /* Center horizontally */
+}
+
+@keyframes spin {
+   0% { transform: rotate(0deg); }
+   100% { transform: rotate(360deg); }
+}
+
+.weather-info-container {
+   background: linear-gradient(to bottom, #e8e841, rgb(233, 233, 233));
+   border-radius: 1.875rem;
+   box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+   color: rgb(91, 91, 91);
+   margin-top: 2rem;
+   padding: 1rem;
+   display: flex;
+   position: relative;
+   text-align: center;
+   justify-content: center;
+   align-items: center;
+   width: 25rem;
+   height: 22rem;
+}
+
+.weather-info-container h2 {
+   font-size: 1rem;
+   margin-top: 1.5rem;
+   margin-bottom: 0rem;
+}
+
+.weather-info-container img {
+   width: 7rem;
+   height: 7rem;
+}
+
+.weather-info-container div#temp {
+   font-size: 1.5rem;
+   font-weight: bold;
+   margin-top: 0.5em;
+   margin-bottom: 0.5em;
+}
+
+#date {
+   position: absolute;
+   top: 0.625rem;
+   left: 0.625rem;
+   margin-top: 0.2em;
+   margin-left: 1em;
+}
+
+#time {
+   position: absolute;
+   top: 0.625rem;
+   right: 0.625rem;
+   margin-top: 0.2em;
+   margin-right: 1em;
+}
+
+.weather-block {
+   display: inline-block;
+   margin-top: 1rem;
+   margin-left: 0.5rem;
+   margin-right: 0.5rem;
+   width: 7rem;
+   height: 1rem;
+}
+
+.weather-block span.fa-solid {
+   display: block;
+   font-size: 1.5rem;
+   margin-bottom: 0.5rem;
+   color: rgb(79, 160, 134);
+}
+
+.weather-block p {
+   font-weight: bolder;
+}
+
+@media screen and (max-width: 2560px) {
+   html {
+      font-size: 27px;
+   }
+}
+
+@media screen and (max-width: 1920px) {
+   html {
+      font-size: 20px;
+   }
+}
+
+@media screen and (max-width: 1536px) {
+   html {
+      font-size: 16px;
+   }
+}
+
+@media screen and (max-width: 1024px) {
+   html {
+      font-size: 11px;
+   }
+}
+
+@media screen and (max-width: 768px) {
+   
+}
+
+@media screen and (max-width: 576px) {
+   
+}
+
+@media screen and (max-width: 375px) {
+   
+}
+
+@media screen and (max-width: 330px) {
+   html {
+      font-size: 9px;
+   }
+}
