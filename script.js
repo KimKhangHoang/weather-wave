@@ -70,7 +70,7 @@ async function fetchWeather() {
 
       // Throw an exception if not okay
       if (!responseWeather.ok && !responseForecast.ok) {
-         throw new Error("Weather data retrieval failed. Please check your spelling and try again.");
+         throw new Error("We could not get the weather information. <br>Please check your spelling and try again.");
       }
 
       // Convert the response to json format
@@ -140,7 +140,7 @@ async function fetchWeather() {
       spinner.style.display = "none"; // hide spinner when data is resolved
       
    } catch (error) {
-      document.getElementById("weatherInfo").innerHTML = `${error}`;
+      document.getElementById("weatherInfo").innerHTML = error.message;
       spinner.style.display = "none"; // hide spinner when data is rejected
    }
 }

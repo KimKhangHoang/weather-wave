@@ -5,7 +5,6 @@ This repository contains the source code for a web application that provides rea
 ## Features
 
 - Real-time weather data
-- 5-day weather forecast
 - Search functionality for different locations
 - User-friendly and responsive interface
 
