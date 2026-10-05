@@ -32,9 +32,9 @@ document.getElementById("location").addEventListener("keydown", function(event) 
    }
 });
 
-// Display a weather information container
+// Display a weather information container straight after the search bar (and above the footer)
 function displayWeatherContainer() {
-   document.body.insertAdjacentHTML("beforeend", 
+   document.querySelector(".search-bar-container").insertAdjacentHTML("afterend",
       `<div class="weather-info-container">
          <div class="spinner" id="spinner"></div>
          <div id="weatherInfo"></div>
