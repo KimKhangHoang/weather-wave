@@ -50,12 +50,27 @@ function removePreviousWeatherContainer() {
    }
 }
 
+// Turn a place name into coordinates using Open-Meteo's geocoding service (no API key needed)
+async function geocodeLocation(name) {
+   const apiURLGeocoding = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=1&language=en&format=json`; // encode so spaces, accents and symbols are sent safely
+
+   const response = await fetch(apiURLGeocoding);
+   if (!response.ok) {
+      throw new Error("We could not get the weather information. <br>Please try again later.");
+   }
+
+   const data = await response.json();
+   if (!data.results) {
+      throw new Error("We could not get the weather information. <br>Please check your spelling and try again."); // no place matched the name
+   }
+
+   return data.results[0]; // best match, includes latitude, longitude and timezone
+}
+
 // Get weather
 async function fetchWeather() {
    const location = capitalizeWords(document.getElementById("location").value); // the entered location (API handles case sensitivity)
    const apiKey = "ee02041144b780c8f41041db1d2517aa"; // my API key
-   const apiURLWeather = `https://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${apiKey}&units=metric`; // construct the API URL weather with my API key and the entered location
-   const apiURLForecast = `https://api.openweathermap.org/data/2.5/forecast?q=${location}&appid=${apiKey}&units=metric`; // construct the API URL with forecast my API key and the entered location
 
    const spinner = document.getElementById("spinner");
    const weatherInfo = document.getElementById("weatherInfo");
@@ -63,6 +78,11 @@ async function fetchWeather() {
    try {
       spinner.style.display = "block"; // display spinner
       weatherInfo.innerHTML = ""; // clear previous data information
+
+      // Find the coordinates of the entered location, then ask for the weather at that point
+      const place = await geocodeLocation(location);
+      const apiURLWeather = `https://api.openweathermap.org/data/2.5/weather?lat=${place.latitude}&lon=${place.longitude}&appid=${apiKey}&units=metric`;
+      const apiURLForecast = `https://api.openweathermap.org/data/2.5/forecast?lat=${place.latitude}&lon=${place.longitude}&appid=${apiKey}&units=metric`;
 
       // Make a GET request to the OpenWeatherMap API
       const responseWeather = await fetch(apiURLWeather); 
