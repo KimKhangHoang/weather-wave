@@ -16,25 +16,29 @@ function capitalizeFirstLetter(string) {
    return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-// Search on click
-document.getElementById("searchWeather").addEventListener("click", function() {
+// Run a search, unless nothing (or only spaces) has been typed
+function search() {
+   if (document.getElementById("location").value.trim() === "") {
+      return;
+   }
    removePreviousWeatherContainer();
    displayWeatherContainer();
    fetchWeather();
-});
+}
+
+// Search on click
+document.getElementById("searchWeather").addEventListener("click", search);
 
 // Search on enter
-document.getElementById("location").addEventListener("keydown", function(event) { 
+document.getElementById("location").addEventListener("keydown", function(event) {
    if (event.key === "Enter") {
-      removePreviousWeatherContainer();
-      displayWeatherContainer();
-      fetchWeather();
+      search();
    }
 });
 
-// Display a weather information container
+// Display a weather information container straight after the search bar (and above the footer)
 function displayWeatherContainer() {
-   document.body.insertAdjacentHTML("beforeend", 
+   document.querySelector(".search-bar-container").insertAdjacentHTML("afterend",
       `<div class="weather-info-container">
          <div class="spinner" id="spinner"></div>
          <div id="weatherInfo"></div>
@@ -102,7 +106,7 @@ const weatherCodes = {
 
 // Get weather
 async function fetchWeather() {
-   const location = capitalizeWords(document.getElementById("location").value); // the entered location (API handles case sensitivity)
+   const location = capitalizeWords(document.getElementById("location").value.trim()); // the entered location (API handles case sensitivity)
 
    const spinner = document.getElementById("spinner");
    const weatherInfo = document.getElementById("weatherInfo");

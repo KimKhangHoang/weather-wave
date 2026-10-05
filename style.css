@@ -59,6 +59,15 @@ button:hover {
    background-color: #0056b3;
 }
 
+.attribution {
+   font-size: 0.75rem;
+   margin: 2rem 0 1rem;
+}
+
+.attribution a {
+   color: inherit;
+}
+
 .spinner {
    display: none; /* Initially hidden */
    border: 0.5rem solid whitesmoke;
