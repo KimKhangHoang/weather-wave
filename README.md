@@ -13,7 +13,7 @@ This repository contains the source code for a web application that provides rea
 - HTML
 - CSS
 - JavaScript
-- OpenWeatherMap API
+- Open-Meteo API (no API key required)
 
 ## Live Demo
 
