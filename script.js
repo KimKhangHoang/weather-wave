@@ -4,13 +4,6 @@
   Date created: 10/07/2024
 */
 
-// Capitalize entered location (for professional)
-function capitalizeWords(str) { 
-   return str.split(' ').map(word => {
-     return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-   }).join(' ');
-}
-
 // Capitalize the first letter of a string (for professional)
 function capitalizeFirstLetter(string) {
    return string.charAt(0).toUpperCase() + string.slice(1);
@@ -106,7 +99,7 @@ const weatherCodes = {
 
 // Get weather
 async function fetchWeather() {
-   const location = capitalizeWords(document.getElementById("location").value.trim()); // the entered location (API handles case sensitivity)
+   const location = document.getElementById("location").value.trim(); // the entered location (API handles case sensitivity)
 
    const spinner = document.getElementById("spinner");
    const weatherInfo = document.getElementById("weatherInfo");
@@ -132,6 +125,7 @@ async function fetchWeather() {
       const current = dataWeather.current;
 
       // Retrieve and process the data
+      const placeName = [place.name, place.country].filter(Boolean).join(", "); // e.g. "São Paulo, Brazil", or just the name if there is no country
       const condition = weatherCodes[current.weather_code] || { description: "unknown", icon: "fa-cloud" }; // fallback for any code not in the table
       const weatherDescription = capitalizeFirstLetter(condition.description);
       const weatherIcon = (!current.is_day && condition.nightIcon) || condition.icon; // night version where there is one, otherwise the normal icon
@@ -157,7 +151,7 @@ async function fetchWeather() {
 
       // Display the data in HTML
       weatherInfo.innerHTML = `
-         <h2>${location}</h2>
+         <h2>${placeName}</h2>
          <span id="weather-icon" class="fa-solid ${weatherIcon}" aria-hidden="true"></span>
          <div>${weatherDescription}</div>
          <div id="temp">${temperature}°C</div>
