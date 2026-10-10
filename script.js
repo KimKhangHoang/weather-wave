@@ -179,10 +179,9 @@ async function fetchWeather() {
          ${rain}mm
          </div>
       `;
-      spinner.style.display = "none"; // hide spinner when data is resolved
-      
    } catch (error) {
-      document.getElementById("weatherInfo").innerHTML = error.message;
-      spinner.style.display = "none"; // hide spinner when data is rejected
+      weatherInfo.innerHTML = error.message;
+   } finally {
+      spinner.style.display = "none"; // hide spinner whether the search worked or failed
    }
 }
