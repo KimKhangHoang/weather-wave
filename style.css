@@ -106,9 +106,13 @@ button:hover {
    margin-bottom: 0rem;
 }
 
-.weather-info-container img {
-   width: 7rem;
+/* Main weather icon, sized to take up the same space as the old 7rem image */
+#weather-icon {
+   display: block;
+   font-size: 4.5rem;
    height: 7rem;
+   line-height: 7rem;
+   color: rgb(79, 160, 134);
 }
 
 .weather-info-container div#temp {

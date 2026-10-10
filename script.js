@@ -72,36 +72,36 @@ async function geocodeLocation(name) {
 }
 
 // Open-Meteo describes the sky with a number (a WMO weather code) instead of text and an icon.
-// This table turns each code into a description and the matching OpenWeatherMap icon, so the page looks the same as before.
+// This table turns each code into a description and a Font Awesome icon. A nightIcon is only given where night looks different (e.g. moon instead of sun).
 const weatherCodes = {
-   0: { description: "clear sky", icon: "01" },
-   1: { description: "mainly clear", icon: "02" },
-   2: { description: "partly cloudy", icon: "03" },
-   3: { description: "overcast clouds", icon: "04" },
-   45: { description: "fog", icon: "50" },
-   48: { description: "freezing fog", icon: "50" },
-   51: { description: "light drizzle", icon: "09" },
-   53: { description: "drizzle", icon: "09" },
-   55: { description: "heavy drizzle", icon: "09" },
-   56: { description: "light freezing drizzle", icon: "09" },
-   57: { description: "freezing drizzle", icon: "09" },
-   61: { description: "light rain", icon: "10" },
-   63: { description: "moderate rain", icon: "10" },
-   65: { description: "heavy rain", icon: "10" },
-   66: { description: "light freezing rain", icon: "13" },
-   67: { description: "freezing rain", icon: "13" },
-   71: { description: "light snow", icon: "13" },
-   73: { description: "snow", icon: "13" },
-   75: { description: "heavy snow", icon: "13" },
-   77: { description: "snow grains", icon: "13" },
-   80: { description: "light rain showers", icon: "09" },
-   81: { description: "rain showers", icon: "09" },
-   82: { description: "heavy rain showers", icon: "09" },
-   85: { description: "light snow showers", icon: "13" },
-   86: { description: "heavy snow showers", icon: "13" },
-   95: { description: "thunderstorm", icon: "11" },
-   96: { description: "thunderstorm with hail", icon: "11" },
-   99: { description: "thunderstorm with heavy hail", icon: "11" }
+   0: { description: "clear sky", icon: "fa-sun", nightIcon: "fa-moon" },
+   1: { description: "mainly clear", icon: "fa-cloud-sun", nightIcon: "fa-cloud-moon" },
+   2: { description: "partly cloudy", icon: "fa-cloud-sun", nightIcon: "fa-cloud-moon" },
+   3: { description: "overcast clouds", icon: "fa-cloud" },
+   45: { description: "fog", icon: "fa-smog" },
+   48: { description: "freezing fog", icon: "fa-smog" },
+   51: { description: "light drizzle", icon: "fa-cloud-rain" },
+   53: { description: "drizzle", icon: "fa-cloud-rain" },
+   55: { description: "heavy drizzle", icon: "fa-cloud-rain" },
+   56: { description: "light freezing drizzle", icon: "fa-cloud-rain" },
+   57: { description: "freezing drizzle", icon: "fa-cloud-rain" },
+   61: { description: "light rain", icon: "fa-cloud-rain" },
+   63: { description: "moderate rain", icon: "fa-cloud-rain" },
+   65: { description: "heavy rain", icon: "fa-cloud-showers-heavy" },
+   66: { description: "light freezing rain", icon: "fa-snowflake" },
+   67: { description: "freezing rain", icon: "fa-snowflake" },
+   71: { description: "light snow", icon: "fa-snowflake" },
+   73: { description: "snow", icon: "fa-snowflake" },
+   75: { description: "heavy snow", icon: "fa-snowflake" },
+   77: { description: "snow grains", icon: "fa-snowflake" },
+   80: { description: "light rain showers", icon: "fa-cloud-sun-rain", nightIcon: "fa-cloud-moon-rain" },
+   81: { description: "rain showers", icon: "fa-cloud-sun-rain", nightIcon: "fa-cloud-moon-rain" },
+   82: { description: "heavy rain showers", icon: "fa-cloud-showers-heavy" },
+   85: { description: "light snow showers", icon: "fa-snowflake" },
+   86: { description: "heavy snow showers", icon: "fa-snowflake" },
+   95: { description: "thunderstorm", icon: "fa-cloud-bolt" },
+   96: { description: "thunderstorm with hail", icon: "fa-cloud-bolt" },
+   99: { description: "thunderstorm with heavy hail", icon: "fa-cloud-bolt" }
 };
 
 // Get weather
@@ -132,10 +132,9 @@ async function fetchWeather() {
       const current = dataWeather.current;
 
       // Retrieve and process the data
-      const condition = weatherCodes[current.weather_code] || { description: "unknown", icon: "03" }; // fallback for any code not in the table
+      const condition = weatherCodes[current.weather_code] || { description: "unknown", icon: "fa-cloud" }; // fallback for any code not in the table
       const weatherDescription = capitalizeFirstLetter(condition.description);
-      const weatherIcon = condition.icon + (current.is_day ? "d" : "n"); // day or night version of the icon
-      const iconUrl = `https://openweathermap.org/img/wn/${weatherIcon}@2x.png`;
+      const weatherIcon = (!current.is_day && condition.nightIcon) || condition.icon; // night version where there is one, otherwise the normal icon
       const timeZone = dataWeather.utc_offset_seconds; // offset from UTC in seconds, same format OpenWeatherMap used
       const temperature = Math.round(current.temperature_2m);
       const humidity = current.relative_humidity_2m;
@@ -156,40 +155,33 @@ async function fetchWeather() {
       
       const rain = current.precipitation; // rain, showers and snow over the past hour, in mm (always present)
 
-      // Ensure the weather icon is fully loaded before displaying the weather info
-      const img = new Image();
-      img.src = iconUrl;
-      img.onload = function () {
-         // Display the data in HTML
-         weatherInfo.innerHTML = `
-            <h2>${location}</h2>
-            <img id="weather-icon" alt="Weather Icon" src="${iconUrl}">
-            <div>${weatherDescription}</div>
-            <div id="temp">${temperature}°C</div>
-            <div id="date">${date}</div>
-            <div id="time">${time}</div>
-            <div class="weather-block" id="humidity">
-            <span class="fa-solid fa-droplet"></span>
-            <p>Humidity</p>
-            ${humidity}%
-            </div>
-            <div class="weather-block" id="wind">
-            <span class="fa-solid fa-wind"></span>
-            <p>Wind</p>
-            ${wind}km/h
-            </div>
-            <div class="weather-block" id="rain">
-            <span class="fa-solid fa-cloud-rain"></span>
-            <p>Precipitation</p>
-            ${rain}mm
-            </div>
-         `;
-         spinner.style.display = "none"; // Hide spinner
-      };
-      spinner.style.display = "none"; // hide spinner when data is resolved
-      
+      // Display the data in HTML
+      weatherInfo.innerHTML = `
+         <h2>${location}</h2>
+         <span id="weather-icon" class="fa-solid ${weatherIcon}" aria-hidden="true"></span>
+         <div>${weatherDescription}</div>
+         <div id="temp">${temperature}°C</div>
+         <div id="date">${date}</div>
+         <div id="time">${time}</div>
+         <div class="weather-block" id="humidity">
+         <span class="fa-solid fa-droplet"></span>
+         <p>Humidity</p>
+         ${humidity}%
+         </div>
+         <div class="weather-block" id="wind">
+         <span class="fa-solid fa-wind"></span>
+         <p>Wind</p>
+         ${wind}km/h
+         </div>
+         <div class="weather-block" id="rain">
+         <span class="fa-solid fa-cloud-rain"></span>
+         <p>Precipitation</p>
+         ${rain}mm
+         </div>
+      `;
    } catch (error) {
-      document.getElementById("weatherInfo").innerHTML = error.message;
-      spinner.style.display = "none"; // hide spinner when data is rejected
+      weatherInfo.innerHTML = error.message;
+   } finally {
+      spinner.style.display = "none"; // hide spinner whether the search worked or failed
    }
 }
