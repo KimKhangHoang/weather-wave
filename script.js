@@ -110,7 +110,7 @@ async function fetchWeather() {
 
       // Find the coordinates of the entered location, then ask for the weather at that point
       const place = await geocodeLocation(location);
-      const apiURLWeather = `https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}&current=temperature_2m,relative_humidity_2m,precipitation,weather_code,wind_speed_10m,is_day&timezone=auto`; // only ask for the values the page shows
+      const apiURLWeather = `https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}&current=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,weather_code,wind_speed_10m,is_day&timezone=auto`; // only ask for the values the page shows
 
       // Make a GET request to the Open-Meteo API
       const responseWeather = await fetch(apiURLWeather);
@@ -131,6 +131,7 @@ async function fetchWeather() {
       const weatherIcon = (!current.is_day && condition.nightIcon) || condition.icon; // night version where there is one, otherwise the normal icon
       const timeZone = dataWeather.utc_offset_seconds; // offset from UTC in seconds, same format OpenWeatherMap used
       const temperature = Math.round(current.temperature_2m);
+      const feelsLike = Math.round(current.apparent_temperature); // accounts for wind and humidity
       const humidity = current.relative_humidity_2m;
       const wind = Math.round(current.wind_speed_10m); // already in km/h, OpenWeatherMap sent m/s
 
@@ -155,6 +156,7 @@ async function fetchWeather() {
          <span id="weather-icon" class="fa-solid ${weatherIcon}" aria-hidden="true"></span>
          <div>${weatherDescription}</div>
          <div id="temp">${temperature}°C</div>
+         <div id="feels-like">Feels like ${feelsLike}°C</div>
          <div id="date">${date}</div>
          <div id="time">${time}</div>
          <div class="weather-block" id="humidity">
