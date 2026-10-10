@@ -125,7 +125,8 @@ async function fetchWeather() {
       const current = dataWeather.current;
 
       // Retrieve and process the data
-      const placeName = [place.name, place.country].filter(Boolean).join(", "); // e.g. "São Paulo, Brazil", or just the name if there is no country
+      // e.g. "São Paulo, Brazil". Just the name when there is no country, or when the place is the country itself (e.g. "Vietnam", "Singapore")
+      const placeName = place.country && place.country !== place.name ? `${place.name}, ${place.country}` : place.name;
       const condition = weatherCodes[current.weather_code] || { description: "unknown", icon: "fa-cloud" }; // fallback for any code not in the table
       const weatherDescription = capitalizeFirstLetter(condition.description);
       const weatherIcon = (!current.is_day && condition.nightIcon) || condition.icon; // night version where there is one, otherwise the normal icon
