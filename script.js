@@ -34,12 +34,27 @@ function setUnit(newUnit) {
    updateTemperatures();
 }
 
-// °C / °F buttons
+// °C / °F buttons, remembering the choice in the browser for next time
 document.querySelectorAll(".unit-toggle button").forEach(function(button) {
    button.addEventListener("click", function() {
       setUnit(button.dataset.unit);
+      try {
+         localStorage.setItem("temperatureUnit", unit);
+      } catch (error) {
+         // storage can be blocked (e.g. private browsing), the switch still works for this visit
+      }
    });
 });
+
+// Start with the unit chosen on a previous visit, if there is one
+try {
+   const savedUnit = localStorage.getItem("temperatureUnit");
+   if (savedUnit === "C" || savedUnit === "F") {
+      setUnit(savedUnit);
+   }
+} catch (error) {
+   // storage unavailable, keep the default °C
+}
 
 // Run a search, unless nothing (or only spaces) has been typed
 function search() {
