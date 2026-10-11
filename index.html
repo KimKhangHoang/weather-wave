@@ -23,13 +23,11 @@
          <input type="text" id="location" placeholder="Enter location">
          <button id="searchWeather">Search</button>
       </div>
-      <div class="unit-toggle">
-         <span class="unit-label active" data-unit="C" aria-hidden="true">°C</span>
-         <button type="button" id="unitSwitch" role="switch" aria-checked="false" aria-label="Show temperatures in Fahrenheit">
-            <span class="unit-switch-knob"></span>
-         </button>
-         <span class="unit-label" data-unit="F" aria-hidden="true">°F</span>
-      </div>
+      <button type="button" id="unitSwitch" role="switch" aria-checked="false" aria-label="Show temperatures in Fahrenheit">
+         <span class="unit-switch-thumb"></span>
+         <span class="unit-option active" data-unit="C">°C</span>
+         <span class="unit-option" data-unit="F">°F</span>
+      </button>
    </div>
 
    <footer class="attribution">

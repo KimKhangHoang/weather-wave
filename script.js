@@ -27,12 +27,12 @@ function updateTemperatures() {
 
 const unitSwitch = document.getElementById("unitSwitch");
 
-// Switch the unit, move the switch, highlight the matching label and re-draw any temperatures already shown
+// Switch the unit, slide the highlight, colour the matching option and re-draw any temperatures already shown
 function setUnit(newUnit) {
    unit = newUnit;
    unitSwitch.setAttribute("aria-checked", unit === "F"); // the switch is "on" for °F
-   document.querySelectorAll(".unit-label").forEach(function(label) {
-      label.classList.toggle("active", label.dataset.unit === unit);
+   document.querySelectorAll(".unit-option").forEach(function(option) {
+      option.classList.toggle("active", option.dataset.unit === unit);
    });
    updateTemperatures();
 }
@@ -47,14 +47,10 @@ function chooseUnit(newUnit) {
    }
 }
 
-// Clicking the switch flips the unit, clicking a label picks that unit
-unitSwitch.addEventListener("click", function() {
-   chooseUnit(unit === "C" ? "F" : "C");
-});
-document.querySelectorAll(".unit-label").forEach(function(label) {
-   label.addEventListener("click", function() {
-      chooseUnit(label.dataset.unit);
-   });
+// Clicking °C or °F picks that unit. Anything else (the pill's edge, or Space/Enter on the keyboard) flips it
+unitSwitch.addEventListener("click", function(event) {
+   const option = event.target.closest(".unit-option");
+   chooseUnit(option ? option.dataset.unit : (unit === "C" ? "F" : "C"));
 });
 
 // Start with the unit chosen on a previous visit, if there is one
@@ -70,7 +66,7 @@ try {
 // Turn on the sliding animation only after the starting position has been drawn (two frames later)
 requestAnimationFrame(function() {
    requestAnimationFrame(function() {
-      document.querySelector(".unit-toggle").classList.add("ready");
+      unitSwitch.classList.add("ready");
    });
 });
 

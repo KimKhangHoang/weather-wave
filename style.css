@@ -76,67 +76,61 @@ button:hover {
    background-color: #0056b3;
 }
 
-/* °C [switch] °F under the search box */
-.unit-toggle {
+/* °C / °F switch under the search box: one white pill with a blue highlight that slides behind the chosen unit */
+#unitSwitch {
+   position: relative;
    display: flex;
-   align-items: center;
-   gap: 0.5rem;
    width: fit-content;
    margin: 0.75rem auto 0;
-   padding: 0.35rem 0.8rem;
-   background: white;
+   padding: 0.25rem;
    border-radius: 999px;
+   background-color: white;
    box-shadow: 0 0 0.625rem rgba(0, 0, 0, 0.1);
 }
 
-/* The °C / °F text either side. The current unit is highlighted */
-.unit-label {
+#unitSwitch:hover {
+   background-color: #f3f6fb; /* replaces the dark blue hover used by other buttons */
+}
+
+/* The two units inside the pill. They sit above the highlight, and the chosen one turns white */
+.unit-option {
+   position: relative;
+   z-index: 1;
+   width: 2.75rem;
+   padding: 0.3rem 0;
+   font-weight: bold;
    color: rgb(150, 150, 150);
-   font-weight: bold; /* always bold so the pill doesn't change width when the highlight moves */
-   cursor: pointer;
-   user-select: none;
    transition: color 0.25s;
 }
 
-.unit-label.active {
-   color: #007BFF;
+.unit-option.active {
+   color: white;
 }
 
-/* The switch track */
-#unitSwitch {
-   position: relative;
-   width: 2.75rem;
-   height: 1.5rem;
-   margin: 0;
-   padding: 0;
-   border-radius: 999px;
-}
-
-/* The round knob. It sits on the left for °C and slides right for °F */
-.unit-switch-knob {
+/* The blue highlight. It is exactly one unit wide, so moving it by its own width (100%) lands it on °F */
+.unit-switch-thumb {
    position: absolute;
-   top: 0.2rem;
-   left: 0.2rem;
-   width: 1.1rem;
-   height: 1.1rem;
-   border-radius: 50%;
-   background: white;
-   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+   top: 0.25rem;
+   bottom: 0.25rem;
+   left: 0.25rem;
+   width: 2.75rem;
+   border-radius: 999px;
+   background-color: #007BFF;
 }
 
-#unitSwitch[aria-checked="true"] .unit-switch-knob {
-   transform: translateX(1.25rem); /* track width minus knob width minus both 0.2rem gaps */
+#unitSwitch[aria-checked="true"] .unit-switch-thumb {
+   transform: translateX(100%);
 }
 
 /* Only animate once the page has loaded, so a saved °F choice doesn't slide into place on every visit */
-.unit-toggle.ready .unit-switch-knob {
+#unitSwitch.ready .unit-switch-thumb {
    transition: transform 0.25s ease;
 }
 
 /* Respect the "reduce motion" accessibility setting */
 @media (prefers-reduced-motion: reduce) {
-   .unit-toggle.ready .unit-switch-knob,
-   .unit-label {
+   #unitSwitch.ready .unit-switch-thumb,
+   .unit-option {
       transition: none;
    }
 }
