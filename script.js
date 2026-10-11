@@ -1,5 +1,5 @@
 /*
-  File name: script.css
+  File name: script.js
   Author: Kim Khang Hoang
   Date created: 10/07/2024
 */
@@ -25,24 +25,35 @@ function updateTemperatures() {
    });
 }
 
-// Switch the unit, highlight the matching button and re-draw any temperatures already shown
+const unitSwitch = document.getElementById("unitSwitch");
+
+// Switch the unit, move the switch, highlight the matching label and re-draw any temperatures already shown
 function setUnit(newUnit) {
    unit = newUnit;
-   document.querySelectorAll(".unit-toggle button").forEach(function(button) {
-      button.setAttribute("aria-pressed", button.dataset.unit === unit);
+   unitSwitch.setAttribute("aria-checked", unit === "F"); // the switch is "on" for °F
+   document.querySelectorAll(".unit-label").forEach(function(label) {
+      label.classList.toggle("active", label.dataset.unit === unit);
    });
    updateTemperatures();
 }
 
-// °C / °F buttons, remembering the choice in the browser for next time
-document.querySelectorAll(".unit-toggle button").forEach(function(button) {
-   button.addEventListener("click", function() {
-      setUnit(button.dataset.unit);
-      try {
-         localStorage.setItem("temperatureUnit", unit);
-      } catch (error) {
-         // storage can be blocked (e.g. private browsing), the switch still works for this visit
-      }
+// Change the unit because the user asked to, and remember the choice in the browser for next time
+function chooseUnit(newUnit) {
+   setUnit(newUnit);
+   try {
+      localStorage.setItem("temperatureUnit", unit);
+   } catch (error) {
+      // storage can be blocked (e.g. private browsing), the switch still works for this visit
+   }
+}
+
+// Clicking the switch flips the unit, clicking a label picks that unit
+unitSwitch.addEventListener("click", function() {
+   chooseUnit(unit === "C" ? "F" : "C");
+});
+document.querySelectorAll(".unit-label").forEach(function(label) {
+   label.addEventListener("click", function() {
+      chooseUnit(label.dataset.unit);
    });
 });
 
@@ -55,6 +66,13 @@ try {
 } catch (error) {
    // storage unavailable, keep the default °C
 }
+
+// Turn on the sliding animation only after the starting position has been drawn (two frames later)
+requestAnimationFrame(function() {
+   requestAnimationFrame(function() {
+      document.querySelector(".unit-toggle").classList.add("ready");
+   });
+});
 
 // Run a search, unless nothing (or only spaces) has been typed
 function search() {
