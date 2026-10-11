@@ -158,13 +158,15 @@ button:hover {
    margin-right: 1em;
 }
 
-.weather-block {
-   display: inline-block;
+/* Humidity, wind and precipitation side by side, sharing the card's width equally */
+.weather-stats {
+   display: flex;
    margin-top: 1rem;
-   margin-left: 0.5rem;
-   margin-right: 0.5rem;
-   width: 7rem;
-   height: 1rem;
+}
+
+.weather-block {
+   flex: 1;
+   min-width: 0;
 }
 
 .weather-block span.fa-solid {
