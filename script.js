@@ -160,20 +160,22 @@ async function fetchWeather() {
          <div id="feels-like">Feels like ${feelsLike}°C</div>
          <div id="date">${date}</div>
          <div id="time">${time}</div>
-         <div class="weather-block" id="humidity">
-         <span class="fa-solid fa-droplet"></span>
-         <p>Humidity</p>
-         ${humidity}%
-         </div>
-         <div class="weather-block" id="wind">
-         <span class="fa-solid fa-wind"></span>
-         <p>Wind</p>
-         ${wind}km/h
-         </div>
-         <div class="weather-block" id="rain">
-         <span class="fa-solid fa-cloud-rain"></span>
-         <p>Precipitation</p>
-         ${rain}mm
+         <div class="weather-stats">
+            <div class="weather-block" id="humidity">
+               <span class="fa-solid fa-droplet"></span>
+               <p>Humidity</p>
+               ${humidity}%
+            </div>
+            <div class="weather-block" id="wind">
+               <span class="fa-solid fa-wind"></span>
+               <p>Wind</p>
+               ${wind}km/h
+            </div>
+            <div class="weather-block" id="rain">
+               <span class="fa-solid fa-cloud-rain"></span>
+               <p>Precipitation</p>
+               ${rain}mm
+            </div>
          </div>
       `;
    } catch (error) {

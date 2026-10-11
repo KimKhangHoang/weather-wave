@@ -4,12 +4,18 @@
   Date created: 10/07/2024
 */
 
+/* Text size grows smoothly with screen width: 16px on phones, tablets and laptops, up to 22px on very large screens.
+   Everything sized in rem scales with it. Using rem (not px) also respects the visitor's own browser font size setting. */
 html {
-   display: flex;
-   justify-content: center;
-   align-items: center;
+   font-size: clamp(1rem, 0.4vw + 0.625rem, 1.375rem);
 }
 
+/* Widths and heights include padding and borders, so "100%" never spills past the screen edge */
+*, *::before, *::after {
+   box-sizing: border-box;
+}
+
+/* Stack everything in a centred column, with a small gap at the screen edges on narrow phones */
 body {
    font-family: Verdana, Tahoma, Arial, sans-serif;
    text-align: center;
@@ -20,7 +26,11 @@ body {
    background-repeat: no-repeat;
    background-attachment: fixed;
    margin: 0;
-   padding: 0;
+   padding: 0 1rem;
+   min-height: 100vh;
+   display: flex;
+   flex-direction: column;
+   align-items: center;
 }
 
 h1 {
@@ -28,16 +38,23 @@ h1 {
 }
 
 .search-bar-container {
-   margin-top: 1rem;
+   max-width: 100%; /* no top margin, the heading's bottom margin already provides the gap */
 }
 
+/* Natural width on big screens, but allowed to shrink (by narrowing the text box) on small ones */
 .weather-search {
    background: white;
    border-radius: 0.5rem;
    box-shadow: 0 0 0.625rem rgba(0, 0, 0, 0.1);
    padding: 1.25rem;
-   display: inline-block;
+   display: inline-flex;
+   max-width: 100%;
    margin-top: 0.5rem;
+}
+
+.weather-search input {
+   flex: 1;
+   min-width: 0;
 }
 
 input, button {
@@ -73,10 +90,11 @@ button:hover {
    border: 0.5rem solid whitesmoke;
    border-radius: 50%;
    border-top: 0.5rem solid #3498db;
-   width: 3.75rem;
-   height: 3.75rem;
+   width: 4.75rem; /* includes the 0.5rem border on each side, so the spinner stays its original size */
+   height: 4.75rem;
    animation: spin 2s linear infinite; /* Spinning animation */
    margin: auto; /* Center horizontally */
+   flex-shrink: 0; /* never squash it into an oval */
 }
 
 @keyframes spin {
@@ -96,8 +114,18 @@ button:hover {
    text-align: center;
    justify-content: center;
    align-items: center;
-   width: 25rem;
-   height: 22rem;
+   width: 100%;
+   max-width: 27rem; /* same size as before on wider screens, narrower on small phones */
+   min-height: 24rem; /* grows taller if the content needs it, e.g. a long place name */
+}
+
+#weatherInfo {
+   width: 100%;
+}
+
+/* While loading the info box is empty, so hide it and leave the card's space to the spinner */
+#weatherInfo:empty {
+   display: none;
 }
 
 .weather-info-container h2 {
@@ -142,13 +170,15 @@ button:hover {
    margin-right: 1em;
 }
 
-.weather-block {
-   display: inline-block;
+/* Humidity, wind and precipitation side by side, sharing the card's width equally */
+.weather-stats {
+   display: flex;
    margin-top: 1rem;
-   margin-left: 0.5rem;
-   margin-right: 0.5rem;
-   width: 7rem;
-   height: 1rem;
+}
+
+.weather-block {
+   flex: 1;
+   min-width: 0;
 }
 
 .weather-block span.fa-solid {
@@ -162,44 +192,17 @@ button:hover {
    font-weight: bolder;
 }
 
-@media screen and (max-width: 2560px) {
-   html {
-      font-size: 27px;
+/* Very small phones: less padding at the edges and smaller stat labels, so "Precipitation" fits in its column */
+@media (max-width: 360px) {
+   body {
+      padding: 0 0.5rem;
    }
-}
 
-@media screen and (max-width: 1920px) {
-   html {
-      font-size: 20px;
+   .weather-info-container {
+      padding: 1rem 0.5rem;
    }
-}
 
-@media screen and (max-width: 1536px) {
-   html {
-      font-size: 16px;
-   }
-}
-
-@media screen and (max-width: 1024px) {
-   html {
-      font-size: 11px;
-   }
-}
-
-@media screen and (max-width: 768px) {
-   
-}
-
-@media screen and (max-width: 576px) {
-   
-}
-
-@media screen and (max-width: 375px) {
-   
-}
-
-@media screen and (max-width: 330px) {
-   html {
-      font-size: 9px;
+   .weather-block p {
+      font-size: 0.8rem;
    }
 }
