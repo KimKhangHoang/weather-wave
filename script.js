@@ -25,6 +25,22 @@ function updateTemperatures() {
    });
 }
 
+// Switch the unit, highlight the matching button and re-draw any temperatures already shown
+function setUnit(newUnit) {
+   unit = newUnit;
+   document.querySelectorAll(".unit-toggle button").forEach(function(button) {
+      button.setAttribute("aria-pressed", button.dataset.unit === unit);
+   });
+   updateTemperatures();
+}
+
+// °C / °F buttons
+document.querySelectorAll(".unit-toggle button").forEach(function(button) {
+   button.addEventListener("click", function() {
+      setUnit(button.dataset.unit);
+   });
+});
+
 // Run a search, unless nothing (or only spaces) has been typed
 function search() {
    if (document.getElementById("location").value.trim() === "") {

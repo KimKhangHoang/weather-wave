@@ -76,6 +76,34 @@ button:hover {
    background-color: #0056b3;
 }
 
+/* °C | °F pill under the search box. The selected button is marked with aria-pressed="true" */
+.unit-toggle {
+   display: flex;
+   width: fit-content;
+   margin: 0.75rem auto 0;
+   padding: 0.2rem;
+   background: white;
+   border-radius: 999px;
+   box-shadow: 0 0 0.625rem rgba(0, 0, 0, 0.1);
+}
+
+.unit-toggle button {
+   margin: 0;
+   padding: 0.3rem 0.9rem;
+   border-radius: 999px;
+   background-color: transparent;
+   color: rgb(91, 91, 91);
+}
+
+.unit-toggle button:hover {
+   background-color: #e6f0ff;
+}
+
+.unit-toggle button[aria-pressed="true"] {
+   background-color: #007BFF;
+   color: white;
+}
+
 .attribution {
    font-size: 0.75rem;
    margin: 2rem 0 1rem;
