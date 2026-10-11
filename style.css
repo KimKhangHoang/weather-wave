@@ -4,12 +4,12 @@
   Date created: 10/07/2024
 */
 
-html {
-   display: flex;
-   justify-content: center;
-   align-items: center;
+/* Widths and heights include padding and borders, so "100%" never spills past the screen edge */
+*, *::before, *::after {
+   box-sizing: border-box;
 }
 
+/* Stack everything in a centred column, with a small gap at the screen edges on narrow phones */
 body {
    font-family: Verdana, Tahoma, Arial, sans-serif;
    text-align: center;
@@ -20,7 +20,11 @@ body {
    background-repeat: no-repeat;
    background-attachment: fixed;
    margin: 0;
-   padding: 0;
+   padding: 0 1rem;
+   min-height: 100vh;
+   display: flex;
+   flex-direction: column;
+   align-items: center;
 }
 
 h1 {
@@ -28,16 +32,23 @@ h1 {
 }
 
 .search-bar-container {
-   margin-top: 1rem;
+   max-width: 100%; /* no top margin, the heading's bottom margin already provides the gap */
 }
 
+/* Natural width on big screens, but allowed to shrink (by narrowing the text box) on small ones */
 .weather-search {
    background: white;
    border-radius: 0.5rem;
    box-shadow: 0 0 0.625rem rgba(0, 0, 0, 0.1);
    padding: 1.25rem;
-   display: inline-block;
+   display: inline-flex;
+   max-width: 100%;
    margin-top: 0.5rem;
+}
+
+.weather-search input {
+   flex: 1;
+   min-width: 0;
 }
 
 input, button {
@@ -73,8 +84,8 @@ button:hover {
    border: 0.5rem solid whitesmoke;
    border-radius: 50%;
    border-top: 0.5rem solid #3498db;
-   width: 3.75rem;
-   height: 3.75rem;
+   width: 4.75rem; /* includes the 0.5rem border on each side, so the spinner stays its original size */
+   height: 4.75rem;
    animation: spin 2s linear infinite; /* Spinning animation */
    margin: auto; /* Center horizontally */
 }
@@ -96,8 +107,13 @@ button:hover {
    text-align: center;
    justify-content: center;
    align-items: center;
-   width: 25rem;
-   height: 22rem;
+   width: 100%;
+   max-width: 27rem; /* same size as before on wider screens, narrower on small phones */
+   min-height: 24rem; /* grows taller if the content needs it, e.g. a long place name */
+}
+
+#weatherInfo {
+   width: 100%;
 }
 
 .weather-info-container h2 {
