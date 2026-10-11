@@ -76,6 +76,65 @@ button:hover {
    background-color: #0056b3;
 }
 
+/* °C / °F switch under the search box: one white pill with a blue highlight that slides behind the chosen unit */
+#unitSwitch {
+   position: relative;
+   display: flex;
+   width: fit-content;
+   margin: 0.75rem auto 0;
+   padding: 0.25rem;
+   border-radius: 999px;
+   background-color: white;
+   box-shadow: 0 0 0.625rem rgba(0, 0, 0, 0.1);
+}
+
+#unitSwitch:hover {
+   background-color: #f3f6fb; /* replaces the dark blue hover used by other buttons */
+}
+
+/* The two units inside the pill. They sit above the highlight, and the chosen one turns white */
+.unit-option {
+   position: relative;
+   z-index: 1;
+   width: 2.75rem;
+   padding: 0.3rem 0;
+   font-weight: bold;
+   color: rgb(150, 150, 150);
+   transition: color 0.25s;
+}
+
+.unit-option.active {
+   color: white;
+}
+
+/* The blue highlight. It is exactly one unit wide, so moving it by its own width (100%) lands it on °F */
+.unit-switch-thumb {
+   position: absolute;
+   top: 0.25rem;
+   bottom: 0.25rem;
+   left: 0.25rem;
+   width: 2.75rem;
+   border-radius: 999px;
+   background-color: #007BFF;
+}
+
+#unitSwitch[aria-checked="true"] .unit-switch-thumb {
+   transform: translateX(100%);
+}
+
+/* Only animate once the page has loaded, so a saved °F choice doesn't slide into place on every visit */
+#unitSwitch.ready .unit-switch-thumb {
+   transition: transform 0.25s ease;
+}
+
+/* Respect the "reduce motion" accessibility setting */
+@media (prefers-reduced-motion: reduce) {
+   #unitSwitch.ready .unit-switch-thumb,
+   .unit-option {
+      transition: none;
+   }
+}
+
 .attribution {
    font-size: 0.75rem;
    margin: 2rem 0 1rem;

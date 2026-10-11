@@ -1,5 +1,5 @@
 /*
-  File name: script.css
+  File name: script.js
   Author: Kim Khang Hoang
   Date created: 10/07/2024
 */
@@ -8,6 +8,67 @@
 function capitalizeFirstLetter(string) {
    return string.charAt(0).toUpperCase() + string.slice(1);
 }
+
+// Temperature unit currently shown: "C" or "F"
+let unit = "C";
+
+// Format a Celsius temperature in the current unit, e.g. "20°C" or "68°F"
+function formatTemperature(celsius) {
+   const value = unit === "F" ? celsius * 9 / 5 + 32 : celsius;
+   return `${Math.round(value)}°${unit}`; // round after converting, so °F is as accurate as °C
+}
+
+// Re-draw every temperature on the page in the current unit, using the Celsius value stored on each one
+function updateTemperatures() {
+   document.querySelectorAll("[data-celsius]").forEach(function(element) {
+      element.textContent = formatTemperature(Number(element.dataset.celsius));
+   });
+}
+
+const unitSwitch = document.getElementById("unitSwitch");
+
+// Switch the unit, slide the highlight, colour the matching option and re-draw any temperatures already shown
+function setUnit(newUnit) {
+   unit = newUnit;
+   unitSwitch.setAttribute("aria-checked", unit === "F"); // the switch is "on" for °F
+   document.querySelectorAll(".unit-option").forEach(function(option) {
+      option.classList.toggle("active", option.dataset.unit === unit);
+   });
+   updateTemperatures();
+}
+
+// Change the unit because the user asked to, and remember the choice in the browser for next time
+function chooseUnit(newUnit) {
+   setUnit(newUnit);
+   try {
+      localStorage.setItem("temperatureUnit", unit);
+   } catch (error) {
+      // storage can be blocked (e.g. private browsing), the switch still works for this visit
+   }
+}
+
+// Clicking °C or °F picks that unit. Anything else (the pill's edge, or Space/Enter on the keyboard) flips it
+unitSwitch.addEventListener("click", function(event) {
+   const option = event.target.closest(".unit-option");
+   chooseUnit(option ? option.dataset.unit : (unit === "C" ? "F" : "C"));
+});
+
+// Start with the unit chosen on a previous visit, if there is one
+try {
+   const savedUnit = localStorage.getItem("temperatureUnit");
+   if (savedUnit === "C" || savedUnit === "F") {
+      setUnit(savedUnit);
+   }
+} catch (error) {
+   // storage unavailable, keep the default °C
+}
+
+// Turn on the sliding animation only after the starting position has been drawn (two frames later)
+requestAnimationFrame(function() {
+   requestAnimationFrame(function() {
+      unitSwitch.classList.add("ready");
+   });
+});
 
 // Run a search, unless nothing (or only spaces) has been typed
 function search() {
@@ -131,8 +192,8 @@ async function fetchWeather() {
       const weatherDescription = capitalizeFirstLetter(condition.description);
       const weatherIcon = (!current.is_day && condition.nightIcon) || condition.icon; // night version where there is one, otherwise the normal icon
       const timeZone = dataWeather.utc_offset_seconds; // offset from UTC in seconds, same format OpenWeatherMap used
-      const temperature = Math.round(current.temperature_2m);
-      const feelsLike = Math.round(current.apparent_temperature); // accounts for wind and humidity
+      const temperature = current.temperature_2m; // in °C, rounded when displayed
+      const feelsLike = current.apparent_temperature; // accounts for wind and humidity
       const humidity = current.relative_humidity_2m;
       const wind = Math.round(current.wind_speed_10m); // already in km/h, OpenWeatherMap sent m/s
 
@@ -156,8 +217,8 @@ async function fetchWeather() {
          <h2>${placeName}</h2>
          <span id="weather-icon" class="fa-solid ${weatherIcon}" aria-hidden="true"></span>
          <div>${weatherDescription}</div>
-         <div id="temp">${temperature}°C</div>
-         <div id="feels-like">Feels like ${feelsLike}°C</div>
+         <div id="temp" data-celsius="${temperature}">${formatTemperature(temperature)}</div>
+         <div id="feels-like">Feels like <span data-celsius="${feelsLike}">${formatTemperature(feelsLike)}</span></div>
          <div id="date">${date}</div>
          <div id="time">${time}</div>
          <div class="weather-stats">
