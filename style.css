@@ -94,6 +94,7 @@ button:hover {
    height: 4.75rem;
    animation: spin 2s linear infinite; /* Spinning animation */
    margin: auto; /* Center horizontally */
+   flex-shrink: 0; /* never squash it into an oval */
 }
 
 @keyframes spin {
@@ -120,6 +121,11 @@ button:hover {
 
 #weatherInfo {
    width: 100%;
+}
+
+/* While loading the info box is empty, so hide it and leave the card's space to the spinner */
+#weatherInfo:empty {
+   display: none;
 }
 
 .weather-info-container h2 {
