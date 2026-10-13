@@ -70,18 +70,55 @@ requestAnimationFrame(function() {
    });
 });
 
-// Run a search, unless nothing (or only spaces) has been typed
+// Run a search for the typed place, unless nothing (or only spaces) has been typed
 function search() {
-   if (document.getElementById("location").value.trim() === "") {
+   const location = document.getElementById("location").value.trim(); // the entered location (API handles case sensitivity)
+   if (location === "") {
       return;
    }
-   removePreviousWeatherContainer();
-   displayWeatherContainer();
-   fetchWeather();
+   showWeather(async function() {
+      const place = await geocodeLocation(location);
+      // e.g. "São Paulo, Brazil". Just the name when there is no country, or when the place is the country itself (e.g. "Vietnam", "Singapore")
+      const name = place.country && place.country !== place.name ? `${place.name}, ${place.country}` : place.name;
+      return { latitude: place.latitude, longitude: place.longitude, name: name };
+   });
+}
+
+// Run a search for the device's location. The card is headed "Your location", since we only have coordinates, not a place name
+function searchMyLocation() {
+   showWeather(async function() {
+      const position = await getDevicePosition();
+      return { latitude: position.coords.latitude, longitude: position.coords.longitude, name: "Your location" };
+   });
+}
+
+// Ask the browser for the device's position. The browser shows its own Allow / Block prompt the first time.
+// getCurrentPosition reports back through callbacks, so it is wrapped in a Promise to make it usable with await.
+function getDevicePosition() {
+   return new Promise(function(resolve, reject) {
+      if (!navigator.geolocation) {
+         reject(new Error("Your browser cannot share your location. <br>Please search for a place instead."));
+         return;
+      }
+      navigator.geolocation.getCurrentPosition(
+         resolve, // success: hands back the position
+         function(error) {
+            if (error.code === error.PERMISSION_DENIED) {
+               reject(new Error("Location access is blocked. <br>Allow it in your browser settings, or search for a place instead."));
+            } else {
+               reject(new Error("We could not find your location. <br>Please try again, or search for a place instead."));
+            }
+         },
+         { timeout: 10000, maximumAge: 600000 } // give up after 10 seconds, and reuse a position from the last 10 minutes
+      );
+   });
 }
 
 // Search on click
 document.getElementById("searchWeather").addEventListener("click", search);
+
+// Use my location on click
+document.getElementById("useLocation").addEventListener("click", searchMyLocation);
 
 // Search on enter
 document.getElementById("location").addEventListener("keydown", function(event) {
@@ -158,62 +195,68 @@ const weatherCodes = {
    99: { description: "thunderstorm with heavy hail", icon: "fa-cloud-bolt" }
 };
 
-// Get weather
-async function fetchWeather() {
-   const location = document.getElementById("location").value.trim(); // the entered location (API handles case sensitivity)
+// Show the weather card for a place.
+// findPlace is a function telling it where to look (typed search or device location) and returning {latitude, longitude, name}.
+// If anything fails, the error message is shown in the card.
+async function showWeather(findPlace) {
+   removePreviousWeatherContainer();
+   displayWeatherContainer();
 
    const spinner = document.getElementById("spinner");
    const weatherInfo = document.getElementById("weatherInfo");
 
    try {
       spinner.style.display = "block"; // display spinner
-      weatherInfo.innerHTML = ""; // clear previous data information
+      const place = await findPlace();
+      const dataWeather = await fetchWeatherAt(place.latitude, place.longitude);
+      weatherInfo.innerHTML = weatherCardHTML(place.name, dataWeather);
+   } catch (error) {
+      weatherInfo.innerHTML = error.message;
+   } finally {
+      spinner.style.display = "none"; // hide spinner whether the search worked or failed
+   }
+}
 
-      // Find the coordinates of the entered location, then ask for the weather at that point
-      const place = await geocodeLocation(location);
-      const apiURLWeather = `https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}&current=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,weather_code,wind_speed_10m,is_day&timezone=auto`; // only ask for the values the page shows
+// Ask Open-Meteo for the current weather at a point
+async function fetchWeatherAt(latitude, longitude) {
+   const apiURLWeather = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,weather_code,wind_speed_10m,is_day&timezone=auto`; // only ask for the values the page shows
 
-      // Make a GET request to the Open-Meteo API
-      const responseWeather = await fetch(apiURLWeather);
+   const responseWeather = await fetch(apiURLWeather);
+   if (!responseWeather.ok) {
+      throw new Error("We could not get the weather information. <br>Please try again later.");
+   }
+   return responseWeather.json();
+}
 
-      // Throw an exception if not okay
-      if (!responseWeather.ok) {
-         throw new Error("We could not get the weather information. <br>Please try again later.");
-      }
+// Turn Open-Meteo's answer into the HTML for the weather card
+function weatherCardHTML(placeName, dataWeather) {
+   const current = dataWeather.current;
 
-      // Convert the response to json format
-      const dataWeather = await responseWeather.json();
-      const current = dataWeather.current;
+   const condition = weatherCodes[current.weather_code] || { description: "unknown", icon: "fa-cloud" }; // fallback for any code not in the table
+   const weatherDescription = capitalizeFirstLetter(condition.description);
+   const weatherIcon = (!current.is_day && condition.nightIcon) || condition.icon; // night version where there is one, otherwise the normal icon
+   const timeZone = dataWeather.utc_offset_seconds; // offset from UTC in seconds, same format OpenWeatherMap used
+   const temperature = current.temperature_2m; // in degree Celsius, rounded when displayed
+   const feelsLike = current.apparent_temperature; // accounts for wind and humidity
+   const humidity = current.relative_humidity_2m;
+   const wind = Math.round(current.wind_speed_10m); // already in km/h, OpenWeatherMap sent m/s
 
-      // Retrieve and process the data
-      // e.g. "São Paulo, Brazil". Just the name when there is no country, or when the place is the country itself (e.g. "Vietnam", "Singapore")
-      const placeName = place.country && place.country !== place.name ? `${place.name}, ${place.country}` : place.name;
-      const condition = weatherCodes[current.weather_code] || { description: "unknown", icon: "fa-cloud" }; // fallback for any code not in the table
-      const weatherDescription = capitalizeFirstLetter(condition.description);
-      const weatherIcon = (!current.is_day && condition.nightIcon) || condition.icon; // night version where there is one, otherwise the normal icon
-      const timeZone = dataWeather.utc_offset_seconds; // offset from UTC in seconds, same format OpenWeatherMap used
-      const temperature = current.temperature_2m; // in °C, rounded when displayed
-      const feelsLike = current.apparent_temperature; // accounts for wind and humidity
-      const humidity = current.relative_humidity_2m;
-      const wind = Math.round(current.wind_speed_10m); // already in km/h, OpenWeatherMap sent m/s
+   const dateTime = (new Date(Date.now() + (timeZone * 1000))).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone: 'UTC',
+      hour12: false
+   }).replace(', ', '-').replace(' ', '-');
+   let [date, time] = dateTime.split(','); // split the date and time based on the comma
+   if(date) date = date.trim(); // trim any whitespace from the date and time
+   if(time) time = time.trim();
 
-      const dateTime = (new Date(Date.now() + (timeZone * 1000))).toLocaleDateString('en-US', {
-         year: 'numeric',
-         month: 'short',
-         day: '2-digit',
-         hour: '2-digit',
-         minute: '2-digit',
-         timeZone: 'UTC',
-         hour12: false
-      }).replace(', ', '-').replace(' ', '-');
-      let [date, time] = dateTime.split(','); // split the date and time based on the comma
-      if(date) date = date.trim(); // trim any whitespace from the date and time
-      if(time) time = time.trim();
-      
-      const rain = current.precipitation; // rain, showers and snow over the past hour, in mm (always present)
+   const rain = current.precipitation; // rain, showers and snow over the past hour, in mm (always present)
 
-      // Display the data in HTML
-      weatherInfo.innerHTML = `
+   return `
          <h2>${placeName}</h2>
          <span id="weather-icon" class="fa-solid ${weatherIcon}" aria-hidden="true"></span>
          <div>${weatherDescription}</div>
@@ -239,9 +282,4 @@ async function fetchWeather() {
             </div>
          </div>
       `;
-   } catch (error) {
-      weatherInfo.innerHTML = error.message;
-   } finally {
-      spinner.style.display = "none"; // hide spinner whether the search worked or failed
-   }
 }
