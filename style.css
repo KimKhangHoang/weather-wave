@@ -76,6 +76,16 @@ button:hover {
    background-color: #0056b3;
 }
 
+#useLocation {
+   background-color: white;
+   color: #007BFF;
+   border: 1px solid #ccc;
+}
+
+#useLocation:hover {
+   background-color: #f3f6fb;
+}
+
 /* °C / °F switch under the search box: one white pill with a blue highlight that slides behind the chosen unit */
 #unitSwitch {
    position: relative;

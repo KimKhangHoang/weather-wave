@@ -84,8 +84,41 @@ function search() {
    });
 }
 
+// Run a search for the device's location. The card is headed "Your location", since we only have coordinates, not a place name
+function searchMyLocation() {
+   showWeather(async function() {
+      const position = await getDevicePosition();
+      return { latitude: position.coords.latitude, longitude: position.coords.longitude, name: "Your location" };
+   });
+}
+
+// Ask the browser for the device's position. The browser shows its own Allow / Block prompt the first time.
+// getCurrentPosition reports back through callbacks, so it is wrapped in a Promise to make it usable with await.
+function getDevicePosition() {
+   return new Promise(function(resolve, reject) {
+      if (!navigator.geolocation) {
+         reject(new Error("Your browser cannot share your location. <br>Please search for a place instead."));
+         return;
+      }
+      navigator.geolocation.getCurrentPosition(
+         resolve, // success: hands back the position
+         function(error) {
+            if (error.code === error.PERMISSION_DENIED) {
+               reject(new Error("Location access is blocked. <br>Allow it in your browser settings, or search for a place instead."));
+            } else {
+               reject(new Error("We could not find your location. <br>Please try again, or search for a place instead."));
+            }
+         },
+         { timeout: 10000, maximumAge: 600000 } // give up after 10 seconds, and reuse a position from the last 10 minutes
+      );
+   });
+}
+
 // Search on click
 document.getElementById("searchWeather").addEventListener("click", search);
+
+// Use my location on click
+document.getElementById("useLocation").addEventListener("click", searchMyLocation);
 
 // Search on enter
 document.getElementById("location").addEventListener("keydown", function(event) {
