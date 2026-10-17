@@ -27,7 +27,8 @@ body {
    background-attachment: fixed;
    margin: 0;
    padding: 0 1rem;
-   min-height: 100vh;
+   min-height: 100vh; /* fallback for older browsers */
+   min-height: 100dvh; /* visible screen height, so on phones the footer isn't hidden behind the browser's address bar */
    display: flex;
    flex-direction: column;
    align-items: center;
@@ -145,9 +146,12 @@ button:hover {
    }
 }
 
+/* Footer: the automatic top margin takes up any spare space, which keeps it at the bottom of the screen.
+   The top padding keeps a gap above it when the page is long enough to scroll. */
 .attribution {
    font-size: 0.75rem;
-   margin: 2rem 0 1rem;
+   margin: auto 0 1rem;
+   padding-top: 2rem;
 }
 
 .attribution a {
@@ -197,9 +201,17 @@ button:hover {
    display: none;
 }
 
+/* Date on the left, time on the right, as a normal row so it always keeps its gap above the heading */
+.card-top {
+   display: flex;
+   justify-content: space-between;
+   padding: 0 0.625rem;
+   margin-bottom: 1rem;
+}
+
 .weather-info-container h2 {
    font-size: 1rem;
-   margin-top: 1.5rem;
+   margin-top: 0;
    margin-bottom: 0rem;
 }
 
@@ -221,22 +233,6 @@ button:hover {
 
 #feels-like {
    font-size: 0.85rem;
-}
-
-#date {
-   position: absolute;
-   top: 0.625rem;
-   left: 0.625rem;
-   margin-top: 0.2em;
-   margin-left: 1em;
-}
-
-#time {
-   position: absolute;
-   top: 0.625rem;
-   right: 0.625rem;
-   margin-top: 0.2em;
-   margin-right: 1em;
 }
 
 /* Humidity, wind and precipitation side by side, sharing the card's width equally */
