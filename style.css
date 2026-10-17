@@ -197,9 +197,17 @@ button:hover {
    display: none;
 }
 
+/* Date on the left, time on the right, as a normal row so it always keeps its gap above the heading */
+.card-top {
+   display: flex;
+   justify-content: space-between;
+   padding: 0 0.625rem;
+   margin-bottom: 1rem;
+}
+
 .weather-info-container h2 {
    font-size: 1rem;
-   margin-top: 1.5rem;
+   margin-top: 0;
    margin-bottom: 0rem;
 }
 
@@ -221,22 +229,6 @@ button:hover {
 
 #feels-like {
    font-size: 0.85rem;
-}
-
-#date {
-   position: absolute;
-   top: 0.625rem;
-   left: 0.625rem;
-   margin-top: 0.2em;
-   margin-left: 1em;
-}
-
-#time {
-   position: absolute;
-   top: 0.625rem;
-   right: 0.625rem;
-   margin-top: 0.2em;
-   margin-right: 1em;
 }
 
 /* Humidity, wind and precipitation side by side, sharing the card's width equally */

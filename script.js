@@ -257,13 +257,15 @@ function weatherCardHTML(placeName, dataWeather) {
    const rain = current.precipitation; // rain, showers and snow over the past hour, in mm (always present)
 
    return `
+         <div class="card-top">
+            <div id="date">${date}</div>
+            <div id="time">${time}</div>
+         </div>
          <h2>${placeName}</h2>
          <span id="weather-icon" class="fa-solid ${weatherIcon}" aria-hidden="true"></span>
          <div>${weatherDescription}</div>
          <div id="temp" data-celsius="${temperature}">${formatTemperature(temperature)}</div>
          <div id="feels-like">Feels like <span data-celsius="${feelsLike}">${formatTemperature(feelsLike)}</span></div>
-         <div id="date">${date}</div>
-         <div id="time">${time}</div>
          <div class="weather-stats">
             <div class="weather-block" id="humidity">
                <span class="fa-solid fa-droplet"></span>
