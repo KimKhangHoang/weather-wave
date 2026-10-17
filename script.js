@@ -78,18 +78,80 @@ function search() {
    }
    showWeather(async function() {
       const place = await geocodeLocation(location);
-      // e.g. "São Paulo, Brazil". Just the name when there is no country, or when the place is the country itself (e.g. "Vietnam", "Singapore")
-      const name = place.country && place.country !== place.name ? `${place.name}, ${place.country}` : place.name;
-      return { latitude: place.latitude, longitude: place.longitude, name: name };
+      return { latitude: place.latitude, longitude: place.longitude, name: placeLabel(place.name, place.country) };
    });
 }
 
-// Run a search for the device's location. The card is headed "Your location", since we only have coordinates, not a place name
+// Name for the card heading, e.g. "São Paulo, Brazil".
+// Just the name when there is no country, or when the place is the country itself (e.g. "Vietnam", "Singapore")
+function placeLabel(name, country) {
+   return country && country !== name ? `${name}, ${country}` : name;
+}
+
+// Run a search for the device's location, named after the town it is in (or "Your location" if that can't be found)
 function searchMyLocation() {
    showWeather(async function() {
       const position = await getDevicePosition();
-      return { latitude: position.coords.latitude, longitude: position.coords.longitude, name: "Your location" };
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
+      return { latitude: latitude, longitude: longitude, name: await nameForPosition(latitude, longitude) };
    });
+}
+
+// Find the town and country for a position using OpenStreetMap's Nominatim service.
+// Usage policy: https://operations.osmfoundation.org/policies/nominatim/ (light, user-triggered use only, with credit in the footer).
+// The position is rounded to about 1km first, so nobody's exact location is sent. If anything fails, the card just says "Your location".
+async function nameForPosition(latitude, longitude) {
+   const lat = latitude.toFixed(2); // 2 decimal places is roughly 1km
+   const lon = longitude.toFixed(2);
+
+   // Reuse a name we've already looked up for this area, so we don't ask OpenStreetMap again
+   const cacheKey = `${lat},${lon}`;
+   const savedName = cachedPlaceName(cacheKey);
+   if (savedName) {
+      return savedName;
+   }
+
+   try {
+      const response = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&zoom=10&format=jsonv2&accept-language=en`);
+      if (!response.ok) {
+         return "Your location";
+      }
+      const data = await response.json();
+      const address = data.address || {}; // missing when the position isn't in any town (e.g. out at sea)
+      const town = address.city || address.town || address.village || address.municipality || data.name; // the field used depends on the size of the place
+      if (!town) {
+         return "Your location";
+      }
+      const name = placeLabel(town, address.country);
+      rememberPlaceName(cacheKey, name); // only real names are saved, never a failed lookup
+      return name;
+   } catch (error) {
+      return "Your location"; // e.g. no internet connection, or the service is unavailable
+   }
+}
+
+// Place names already looked up, stored in the browser by rounded position (OpenStreetMap's policy asks apps to cache results)
+function cachedPlaceName(cacheKey) {
+   try {
+      const cache = JSON.parse(localStorage.getItem("placeNames")) || {};
+      return cache[cacheKey];
+   } catch (error) {
+      return undefined; // storage unavailable, so just look it up
+   }
+}
+
+function rememberPlaceName(cacheKey, name) {
+   try {
+      let cache = JSON.parse(localStorage.getItem("placeNames")) || {};
+      if (Object.keys(cache).length >= 50) {
+         cache = {}; // start fresh rather than let the list grow forever
+      }
+      cache[cacheKey] = name;
+      localStorage.setItem("placeNames", JSON.stringify(cache));
+   } catch (error) {
+      // storage unavailable, the name just won't be remembered
+   }
 }
 
 // Ask the browser for the device's position. The browser shows its own Allow / Block prompt the first time.
