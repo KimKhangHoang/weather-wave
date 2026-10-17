@@ -279,9 +279,12 @@ async function showWeather(findPlace) {
    }
 }
 
-// Ask Open-Meteo for the current weather at a point
+// Ask Open-Meteo for the current weather and the 7-day forecast at a point, in one request.
+// Only the values the page shows are requested.
 async function fetchWeatherAt(latitude, longitude) {
-   const apiURLWeather = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,weather_code,wind_speed_10m,is_day&timezone=auto`; // only ask for the values the page shows
+   const currentFields = "temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,weather_code,wind_speed_10m,is_day";
+   const dailyFields = "weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max";
+   const apiURLWeather = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=${currentFields}&daily=${dailyFields}&forecast_days=7&timezone=auto`; // timezone=auto makes each day run midnight to midnight at that place
 
    const responseWeather = await fetch(apiURLWeather);
    if (!responseWeather.ok) {
