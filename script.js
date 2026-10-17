@@ -104,6 +104,14 @@ function searchMyLocation() {
 async function nameForPosition(latitude, longitude) {
    const lat = latitude.toFixed(2); // 2 decimal places is roughly 1km
    const lon = longitude.toFixed(2);
+
+   // Reuse a name we've already looked up for this area, so we don't ask OpenStreetMap again
+   const cacheKey = `${lat},${lon}`;
+   const savedName = cachedPlaceName(cacheKey);
+   if (savedName) {
+      return savedName;
+   }
+
    try {
       const response = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&zoom=10&format=jsonv2&accept-language=en`);
       if (!response.ok) {
@@ -112,9 +120,37 @@ async function nameForPosition(latitude, longitude) {
       const data = await response.json();
       const address = data.address || {}; // missing when the position isn't in any town (e.g. out at sea)
       const town = address.city || address.town || address.village || address.municipality || data.name; // the field used depends on the size of the place
-      return town ? placeLabel(town, address.country) : "Your location";
+      if (!town) {
+         return "Your location";
+      }
+      const name = placeLabel(town, address.country);
+      rememberPlaceName(cacheKey, name); // only real names are saved, never a failed lookup
+      return name;
    } catch (error) {
       return "Your location"; // e.g. no internet connection, or the service is unavailable
+   }
+}
+
+// Place names already looked up, stored in the browser by rounded position (OpenStreetMap's policy asks apps to cache results)
+function cachedPlaceName(cacheKey) {
+   try {
+      const cache = JSON.parse(localStorage.getItem("placeNames")) || {};
+      return cache[cacheKey];
+   } catch (error) {
+      return undefined; // storage unavailable, so just look it up
+   }
+}
+
+function rememberPlaceName(cacheKey, name) {
+   try {
+      let cache = JSON.parse(localStorage.getItem("placeNames")) || {};
+      if (Object.keys(cache).length >= 50) {
+         cache = {}; // start fresh rather than let the list grow forever
+      }
+      cache[cacheKey] = name;
+      localStorage.setItem("placeNames", JSON.stringify(cache));
+   } catch (error) {
+      // storage unavailable, the name just won't be remembered
    }
 }
 
