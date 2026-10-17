@@ -158,6 +158,11 @@ button:hover {
    color: inherit;
 }
 
+/* Keep each credit on one line, so on narrow screens the footer wraps between credits rather than in the middle of one */
+.credit {
+   white-space: nowrap;
+}
+
 .spinner {
    display: none; /* Initially hidden */
    border: 0.5rem solid whitesmoke;
