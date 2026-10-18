@@ -43,10 +43,18 @@ h1 {
 }
 
 /* Natural width on big screens, but allowed to shrink (by narrowing the text box) on small ones */
+/* Shared look for every panel (search box, unit switch, weather card and forecast card):
+   frosted white fading diagonally to a pale sky blue, slightly see-through so the background shows behind */
+.weather-search, #unitSwitch, .weather-info-container, .forecast-card {
+   background: linear-gradient(135deg, rgba(255, 255, 255, 0.97) 0%, rgba(226, 236, 248, 0.95) 50%, rgba(184, 208, 236, 0.95) 100%);
+   border: 1px solid rgba(255, 255, 255, 0.6);
+   box-shadow: 0 0.5rem 1.5rem rgba(15, 35, 60, 0.15);
+   -webkit-backdrop-filter: blur(6px); /* Safari */
+   backdrop-filter: blur(6px);
+}
+
 .weather-search {
-   background: white;
    border-radius: 0.5rem;
-   box-shadow: 0 0 0.625rem rgba(0, 0, 0, 0.1);
    padding: 1.25rem;
    display: inline-flex;
    max-width: 100%;
@@ -95,12 +103,10 @@ button:hover {
    margin: 0.75rem auto 0;
    padding: 0.25rem;
    border-radius: 999px;
-   background-color: white;
-   box-shadow: 0 0 0.625rem rgba(0, 0, 0, 0.1);
 }
 
 #unitSwitch:hover {
-   background-color: #f3f6fb; /* replaces the dark blue hover used by other buttons */
+   background-color: transparent; /* keep the panel look, instead of the dark blue hover used by other buttons */
 }
 
 /* The two units inside the pill. They sit above the highlight, and the chosen one turns white */
@@ -181,9 +187,7 @@ button:hover {
 }
 
 .weather-info-container {
-   background: linear-gradient(to bottom, #e8e841, rgb(233, 233, 233));
    border-radius: 1.875rem;
-   box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
    color: rgb(91, 91, 91);
    margin-top: 2rem;
    padding: 1rem;
@@ -262,15 +266,13 @@ button:hover {
    font-weight: bolder;
 }
 
-/* 7-day forecast card below the current weather: same width and shape, but white so the two cards read separately */
+/* 7-day forecast card below the current weather: same width and shape as the weather card */
 .forecast-card {
    width: 100%;
    max-width: 27rem;
    margin-top: 1rem;
    padding: 1rem 1.25rem;
    border-radius: 1.875rem;
-   background: rgba(255, 255, 255, 0.85);
-   box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
    color: rgb(91, 91, 91);
 }
 
