@@ -278,7 +278,7 @@ async function showWeather(findPlace) {
          return; // a newer search has replaced this card while we were waiting, so drop these results
       }
       weatherInfo.innerHTML = weatherCardHTML(place.name, dataWeather);
-      card.insertAdjacentHTML("afterend", forecastCardHTML(dataWeather.daily));
+      card.insertAdjacentHTML("afterend", forecastCardHTML(dataWeather));
    } catch (error) {
       weatherInfo.innerHTML = error.message;
    } finally {
@@ -364,9 +364,10 @@ function conditionFor(code) {
    return weatherCodes[code] || { description: "unknown", icon: "fa-cloud" };
 }
 
-// Build the 7-day forecast card: one row per day with its icon, chance of rain, and low / high temperature.
+// Build the forecast card: the next 24 hours at the top, then one row per day with its icon, chance of rain, and low / high temperature.
 // Open-Meteo sends each value as a list with one entry per day, so entry i of each list belongs to the same day.
-function forecastCardHTML(daily) {
+function forecastCardHTML(dataWeather) {
+   const daily = dataWeather.daily;
    const rows = daily.time.map(function(day, i) {
       const condition = conditionFor(daily.weather_code[i]);
       const description = capitalizeFirstLetter(condition.description);
@@ -387,9 +388,35 @@ function forecastCardHTML(daily) {
 
    return `
       <section class="forecast-card">
+         ${hourlyStripHTML(dataWeather.hourly, dataWeather.current.time)}
          <h3>7-day forecast</h3>
          <ol class="forecast-days">${rows}</ol>
       </section>`;
+}
+
+// Build the "Next 24 hours" strip: one item per hour, starting from the current hour, with its icon, temperature and chance of rain.
+// The hourly lists start at midnight at that place, so the hours already gone are skipped.
+function hourlyStripHTML(hourly, currentTime) {
+   const currentHour = currentTime.slice(0, 13) + ":00"; // e.g. "2026-10-18T23:45" becomes "2026-10-18T23:00"
+   const start = Math.max(hourly.time.indexOf(currentHour), 0); // start of the list if the hour can't be found
+   const items = hourly.time.slice(start, start + 24).map(function(time, n) {
+      const i = start + n; // position of this hour in the full lists
+      const condition = conditionFor(hourly.weather_code[i]);
+      const description = capitalizeFirstLetter(condition.description);
+      const temperature = hourly.temperature_2m[i];
+      const rainChance = hourly.precipitation_probability[i]; // can be missing for some places
+      return `
+         <li class="hour">
+            <span class="hour-time">${time.slice(11)}</span>
+            <span class="hour-icon fa-solid ${condition.icon}" role="img" aria-label="${description}" title="${description}"></span>
+            <span class="hour-temp" data-celsius="${temperature}" data-short>${formatTemperature(temperature, false)}</span>
+            <span class="hour-rain"><span class="fa-solid fa-droplet" aria-hidden="true"></span> ${rainChance == null ? "–" : rainChance + "%"}</span>
+         </li>`;
+   }).join("");
+
+   return `
+      <h3>Next 24 hours</h3>
+      <ol class="hourly-strip">${items}</ol>`;
 }
 
 // Short weekday name for a date like "2026-10-18", e.g. "Sun".

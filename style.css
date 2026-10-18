@@ -288,6 +288,42 @@ button:hover {
    margin: 0 0 0.25rem;
 }
 
+/* Next 24 hours: the hours side by side in one row, which scrolls sideways when they don't all fit */
+.hourly-strip {
+   list-style: none;
+   margin: 0 0 0.75rem;
+   padding: 0 0 0.5rem;
+   display: flex;
+   gap: 0.25rem;
+   overflow-x: auto;
+}
+
+/* One hour: time, icon, temperature and chance of rain stacked in a small column */
+.hour {
+   flex: 0 0 auto; /* keep each hour its natural width instead of squeezing them all in */
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   gap: 0.35rem;
+   min-width: 3.25rem;
+   padding: 0.5rem 0.25rem;
+   font-size: 0.85rem;
+}
+
+.hour-icon {
+   font-size: 1.25rem;
+   color: rgb(79, 160, 134);
+}
+
+.hour-temp {
+   font-weight: bold;
+}
+
+.hour-rain {
+   font-size: 0.75rem;
+   color: #3a7fb5;
+}
+
 .forecast-days {
    list-style: none;
    margin: 0;
