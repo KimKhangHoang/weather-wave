@@ -262,6 +262,71 @@ button:hover {
    font-weight: bolder;
 }
 
+/* 7-day forecast card below the current weather: same width and shape, but white so the two cards read separately */
+.forecast-card {
+   width: 100%;
+   max-width: 27rem;
+   margin-top: 1rem;
+   padding: 1rem 1.25rem;
+   border-radius: 1.875rem;
+   background: rgba(255, 255, 255, 0.85);
+   box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+   color: rgb(91, 91, 91);
+}
+
+.forecast-card h3 {
+   font-size: 1rem;
+   margin: 0 0 0.25rem;
+}
+
+.forecast-days {
+   list-style: none;
+   margin: 0;
+   padding: 0;
+}
+
+/* One row per day, in four columns: day name, icon, chance of rain, low / high */
+.forecast-day {
+   display: grid;
+   grid-template-columns: 3.5rem 2rem 1fr auto;
+   align-items: center;
+   gap: 0.5rem;
+   padding: 0.5rem 0.25rem;
+   border-top: 1px solid rgba(0, 0, 0, 0.08);
+   text-align: left;
+}
+
+.forecast-day:first-child {
+   border-top: none;
+}
+
+.forecast-name {
+   font-weight: bold;
+}
+
+.forecast-icon {
+   font-size: 1.25rem;
+   text-align: center;
+   color: rgb(79, 160, 134);
+}
+
+.forecast-rain {
+   font-size: 0.85rem;
+   color: #3a7fb5;
+}
+
+.forecast-temps {
+   white-space: nowrap;
+}
+
+.forecast-low {
+   color: rgb(150, 150, 150);
+}
+
+.forecast-high {
+   font-weight: bold;
+}
+
 /* Very small phones: less padding at the edges and smaller stat labels, so "Precipitation" fits in its column */
 @media (max-width: 360px) {
    body {
