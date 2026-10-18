@@ -12,16 +12,18 @@ function capitalizeFirstLetter(string) {
 // Temperature unit currently shown: "C" or "F"
 let unit = "C";
 
-// Format a Celsius temperature in the current unit, e.g. "20°C" or "68°F"
-function formatTemperature(celsius) {
+// Format a Celsius temperature in the current unit, e.g. "20°C" or "68°F".
+// With showUnit = false it is just "20°", for compact places like the forecast rows.
+function formatTemperature(celsius, showUnit = true) {
    const value = unit === "F" ? celsius * 9 / 5 + 32 : celsius;
-   return `${Math.round(value)}°${unit}`; // round after converting, so °F is as accurate as °C
+   return `${Math.round(value)}°${showUnit ? unit : ""}`; // round after converting, so °F is as accurate as °C
 }
 
-// Re-draw every temperature on the page in the current unit, using the Celsius value stored on each one
+// Re-draw every temperature on the page in the current unit, using the Celsius value stored on each one.
+// Temperatures marked with data-short keep their compact form.
 function updateTemperatures() {
    document.querySelectorAll("[data-celsius]").forEach(function(element) {
-      element.textContent = formatTemperature(Number(element.dataset.celsius));
+      element.textContent = formatTemperature(Number(element.dataset.celsius), !("short" in element.dataset));
    });
 }
 
@@ -189,22 +191,23 @@ document.getElementById("location").addEventListener("keydown", function(event) 
    }
 });
 
-// Display a weather information container straight after the search bar (and above the footer)
+// Display a weather information container straight after the search bar (and above the footer), and hand it back
 function displayWeatherContainer() {
-   document.querySelector(".search-bar-container").insertAdjacentHTML("afterend",
+   const searchBar = document.querySelector(".search-bar-container");
+   searchBar.insertAdjacentHTML("afterend",
       `<div class="weather-info-container">
          <div class="spinner" id="spinner"></div>
          <div id="weatherInfo"></div>
       </div>`
    );
+   return searchBar.nextElementSibling; // the card just added
 }
 
-// Remove the previous weather information container
+// Remove the previous weather card and forecast card, if there are any
 function removePreviousWeatherContainer() {
-   const container = document.querySelector('.weather-info-container');
-   if (container) {
-      container.remove();
-   }
+   document.querySelectorAll(".weather-info-container, .forecast-card").forEach(function(card) {
+      card.remove();
+   });
 }
 
 // Turn a place name into coordinates using Open-Meteo's geocoding service (no API key needed)
@@ -262,16 +265,20 @@ const weatherCodes = {
 // If anything fails, the error message is shown in the card.
 async function showWeather(findPlace) {
    removePreviousWeatherContainer();
-   displayWeatherContainer();
+   const card = displayWeatherContainer(); // this search's own card, so a newer search can't mix up results
 
-   const spinner = document.getElementById("spinner");
-   const weatherInfo = document.getElementById("weatherInfo");
+   const spinner = card.querySelector("#spinner");
+   const weatherInfo = card.querySelector("#weatherInfo");
 
    try {
       spinner.style.display = "block"; // display spinner
       const place = await findPlace();
       const dataWeather = await fetchWeatherAt(place.latitude, place.longitude);
+      if (!card.isConnected) {
+         return; // a newer search has replaced this card while we were waiting, so drop these results
+      }
       weatherInfo.innerHTML = weatherCardHTML(place.name, dataWeather);
+      card.insertAdjacentHTML("afterend", forecastCardHTML(dataWeather.daily));
    } catch (error) {
       weatherInfo.innerHTML = error.message;
    } finally {
@@ -279,9 +286,12 @@ async function showWeather(findPlace) {
    }
 }
 
-// Ask Open-Meteo for the current weather at a point
+// Ask Open-Meteo for the current weather and the 7-day forecast at a point, in one request.
+// Only the values the page shows are requested.
 async function fetchWeatherAt(latitude, longitude) {
-   const apiURLWeather = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,weather_code,wind_speed_10m,is_day&timezone=auto`; // only ask for the values the page shows
+   const currentFields = "temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,weather_code,wind_speed_10m,is_day";
+   const dailyFields = "weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max";
+   const apiURLWeather = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=${currentFields}&daily=${dailyFields}&forecast_days=7&timezone=auto`; // timezone=auto makes each day run midnight to midnight at that place
 
    const responseWeather = await fetch(apiURLWeather);
    if (!responseWeather.ok) {
@@ -294,7 +304,7 @@ async function fetchWeatherAt(latitude, longitude) {
 function weatherCardHTML(placeName, dataWeather) {
    const current = dataWeather.current;
 
-   const condition = weatherCodes[current.weather_code] || { description: "unknown", icon: "fa-cloud" }; // fallback for any code not in the table
+   const condition = conditionFor(current.weather_code);
    const weatherDescription = capitalizeFirstLetter(condition.description);
    const weatherIcon = (!current.is_day && condition.nightIcon) || condition.icon; // night version where there is one, otherwise the normal icon
    const timeZone = dataWeather.utc_offset_seconds; // offset from UTC in seconds, same format OpenWeatherMap used
@@ -346,4 +356,43 @@ function weatherCardHTML(placeName, dataWeather) {
             </div>
          </div>
       `;
+}
+
+// Look up a weather code's description and icon, with a fallback for any code not in the table
+function conditionFor(code) {
+   return weatherCodes[code] || { description: "unknown", icon: "fa-cloud" };
+}
+
+// Build the 7-day forecast card: one row per day with its icon, chance of rain, and low / high temperature.
+// Open-Meteo sends each value as a list with one entry per day, so entry i of each list belongs to the same day.
+function forecastCardHTML(daily) {
+   const rows = daily.time.map(function(day, i) {
+      const condition = conditionFor(daily.weather_code[i]);
+      const description = capitalizeFirstLetter(condition.description);
+      const rainChance = daily.precipitation_probability_max[i]; // can be missing for some places
+      const low = daily.temperature_2m_min[i];
+      const high = daily.temperature_2m_max[i];
+      return `
+         <li class="forecast-day">
+            <span class="forecast-name">${i === 0 ? "Today" : dayName(day)}</span>
+            <span class="forecast-icon fa-solid ${condition.icon}" role="img" aria-label="${description}" title="${description}"></span>
+            <span class="forecast-rain"><span class="fa-solid fa-droplet" aria-hidden="true"></span> ${rainChance == null ? "–" : rainChance + "%"}</span>
+            <span class="forecast-temps">
+               <span class="forecast-low" data-celsius="${low}" data-short>${formatTemperature(low, false)}</span> /
+               <span class="forecast-high" data-celsius="${high}" data-short>${formatTemperature(high, false)}</span>
+            </span>
+         </li>`;
+   }).join("");
+
+   return `
+      <section class="forecast-card">
+         <h3>7-day forecast</h3>
+         <ol class="forecast-days">${rows}</ol>
+      </section>`;
+}
+
+// Short weekday name for a date like "2026-10-18", e.g. "Sun".
+// Read as midday UTC and named in UTC, so the visitor's own time zone can't shift it to the day before or after.
+function dayName(isoDate) {
+   return new Date(isoDate + "T12:00:00Z").toLocaleDateString("en-US", { weekday: "short", timeZone: "UTC" });
 }

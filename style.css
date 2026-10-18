@@ -43,10 +43,18 @@ h1 {
 }
 
 /* Natural width on big screens, but allowed to shrink (by narrowing the text box) on small ones */
+/* Shared look for every panel (search box, unit switch, weather card and forecast card):
+   frosted white fading diagonally to a pale sky blue, slightly see-through so the background shows behind */
+.weather-search, #unitSwitch, .weather-info-container, .forecast-card {
+   background: linear-gradient(135deg, rgba(255, 255, 255, 0.97) 0%, rgba(226, 236, 248, 0.95) 50%, rgba(184, 208, 236, 0.95) 100%);
+   border: 1px solid rgba(255, 255, 255, 0.6);
+   box-shadow: 0 0.5rem 1.5rem rgba(15, 35, 60, 0.15);
+   -webkit-backdrop-filter: blur(6px); /* Safari */
+   backdrop-filter: blur(6px);
+}
+
 .weather-search {
-   background: white;
    border-radius: 0.5rem;
-   box-shadow: 0 0 0.625rem rgba(0, 0, 0, 0.1);
    padding: 1.25rem;
    display: inline-flex;
    max-width: 100%;
@@ -95,12 +103,10 @@ button:hover {
    margin: 0.75rem auto 0;
    padding: 0.25rem;
    border-radius: 999px;
-   background-color: white;
-   box-shadow: 0 0 0.625rem rgba(0, 0, 0, 0.1);
 }
 
 #unitSwitch:hover {
-   background-color: #f3f6fb; /* replaces the dark blue hover used by other buttons */
+   background-color: transparent; /* keep the panel look, instead of the dark blue hover used by other buttons */
 }
 
 /* The two units inside the pill. They sit above the highlight, and the chosen one turns white */
@@ -181,9 +187,7 @@ button:hover {
 }
 
 .weather-info-container {
-   background: linear-gradient(to bottom, #e8e841, rgb(233, 233, 233));
    border-radius: 1.875rem;
-   box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
    color: rgb(91, 91, 91);
    margin-top: 2rem;
    padding: 1rem;
@@ -191,14 +195,20 @@ button:hover {
    position: relative;
    text-align: center;
    justify-content: center;
-   align-items: center;
+   align-items: stretch;
    width: 100%;
    max-width: 27rem; /* same size as before on wider screens, narrower on small phones */
    min-height: 24rem; /* grows taller if the content needs it, e.g. a long place name */
 }
 
+/* The card's contents as a column. Messages (e.g. errors) sit centred.
+   When the card is taller than its contents, the weather stats' auto top margin takes the spare space,
+   so the date stays at the top and the stats at the bottom */
 #weatherInfo {
    width: 100%;
+   display: flex;
+   flex-direction: column;
+   justify-content: center;
 }
 
 /* While loading the info box is empty, so hide it and leave the card's space to the spinner */
@@ -243,7 +253,8 @@ button:hover {
 /* Humidity, wind and precipitation side by side, sharing the card's width equally */
 .weather-stats {
    display: flex;
-   margin-top: 1rem;
+   margin-top: auto;
+   padding-top: 1rem;
 }
 
 .weather-block {
@@ -262,6 +273,69 @@ button:hover {
    font-weight: bolder;
 }
 
+/* 7-day forecast card below the current weather: same width and shape as the weather card */
+.forecast-card {
+   width: 100%;
+   max-width: 27rem;
+   margin-top: 1rem;
+   padding: 1rem 1.25rem;
+   border-radius: 1.875rem;
+   color: rgb(91, 91, 91);
+}
+
+.forecast-card h3 {
+   font-size: 1rem;
+   margin: 0 0 0.25rem;
+}
+
+.forecast-days {
+   list-style: none;
+   margin: 0;
+   padding: 0;
+}
+
+/* One row per day, in four columns: day name, icon, chance of rain, low / high */
+.forecast-day {
+   display: grid;
+   grid-template-columns: 3.5rem 2rem 1fr auto;
+   align-items: center;
+   gap: 0.5rem;
+   padding: 0.5rem 0.25rem;
+   border-top: 1px solid rgba(0, 0, 0, 0.08);
+   text-align: left;
+}
+
+.forecast-day:first-child {
+   border-top: none;
+}
+
+.forecast-name {
+   font-weight: bold;
+}
+
+.forecast-icon {
+   font-size: 1.25rem;
+   text-align: center;
+   color: rgb(79, 160, 134);
+}
+
+.forecast-rain {
+   font-size: 0.85rem;
+   color: #3a7fb5;
+}
+
+.forecast-temps {
+   white-space: nowrap;
+}
+
+.forecast-low {
+   color: rgb(150, 150, 150);
+}
+
+.forecast-high {
+   font-weight: bold;
+}
+
 /* Very small phones: less padding at the edges and smaller stat labels, so "Precipitation" fits in its column */
 @media (max-width: 360px) {
    body {
@@ -274,5 +348,39 @@ button:hover {
 
    .weather-block p {
       font-size: 0.8rem;
+   }
+}
+
+/* Wide screens: weather and forecast cards side by side, as a two-column grid.
+   Heading, search area and footer span both columns. The last row takes any spare height, keeping the footer at the bottom. */
+@media (min-width: 60rem) {
+   body {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 27rem));
+      grid-template-rows: auto auto auto 1fr;
+      justify-content: center;
+      align-items: stretch; /* in a grid this is vertical: cards in the same row get the same height (the phone layout uses "center" for horizontal centring) */
+      column-gap: 1.5rem;
+   }
+
+   h1, .search-bar-container, .attribution {
+      grid-column: 1 / -1; /* span both columns */
+      justify-self: center;
+   }
+
+   .attribution {
+      grid-row: 4; /* always the last row, even before the cards exist */
+      align-self: end;
+      margin-top: 0;
+   }
+
+   .weather-info-container, .forecast-card {
+      margin-top: 2rem; /* both cards start at the same height, and stretch to match the taller one */
+   }
+
+   /* While loading, or after a failed search, there is no forecast card: keep the weather card centred instead of in the left column */
+   body:not(:has(.forecast-card)) .weather-info-container {
+      grid-column: 1 / -1;
+      justify-self: center;
    }
 }
