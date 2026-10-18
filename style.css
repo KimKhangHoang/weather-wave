@@ -195,14 +195,20 @@ button:hover {
    position: relative;
    text-align: center;
    justify-content: center;
-   align-items: center;
+   align-items: stretch;
    width: 100%;
    max-width: 27rem; /* same size as before on wider screens, narrower on small phones */
    min-height: 24rem; /* grows taller if the content needs it, e.g. a long place name */
 }
 
+/* The card's contents as a column. Messages (e.g. errors) sit centred.
+   When the card is taller than its contents, the weather stats' auto top margin takes the spare space,
+   so the date stays at the top and the stats at the bottom */
 #weatherInfo {
    width: 100%;
+   display: flex;
+   flex-direction: column;
+   justify-content: center;
 }
 
 /* While loading the info box is empty, so hide it and leave the card's space to the spinner */
@@ -247,7 +253,8 @@ button:hover {
 /* Humidity, wind and precipitation side by side, sharing the card's width equally */
 .weather-stats {
    display: flex;
-   margin-top: 1rem;
+   margin-top: auto;
+   padding-top: 1rem;
 }
 
 .weather-block {
@@ -341,5 +348,39 @@ button:hover {
 
    .weather-block p {
       font-size: 0.8rem;
+   }
+}
+
+/* Wide screens: weather and forecast cards side by side, as a two-column grid.
+   Heading, search area and footer span both columns. The last row takes any spare height, keeping the footer at the bottom. */
+@media (min-width: 60rem) {
+   body {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 27rem));
+      grid-template-rows: auto auto auto 1fr;
+      justify-content: center;
+      align-items: stretch; /* in a grid this is vertical: cards in the same row get the same height (the phone layout uses "center" for horizontal centring) */
+      column-gap: 1.5rem;
+   }
+
+   h1, .search-bar-container, .attribution {
+      grid-column: 1 / -1; /* span both columns */
+      justify-self: center;
+   }
+
+   .attribution {
+      grid-row: 4; /* always the last row, even before the cards exist */
+      align-self: end;
+      margin-top: 0;
+   }
+
+   .weather-info-container, .forecast-card {
+      margin-top: 2rem; /* both cards start at the same height, and stretch to match the taller one */
+   }
+
+   /* While loading, or after a failed search, there is no forecast card: keep the weather card centred instead of in the left column */
+   body:not(:has(.forecast-card)) .weather-info-container {
+      grid-column: 1 / -1;
+      justify-self: center;
    }
 }
