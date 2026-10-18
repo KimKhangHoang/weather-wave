@@ -191,14 +191,16 @@ document.getElementById("location").addEventListener("keydown", function(event) 
    }
 });
 
-// Display a weather information container straight after the search bar (and above the footer)
+// Display a weather information container straight after the search bar (and above the footer), and hand it back
 function displayWeatherContainer() {
-   document.querySelector(".search-bar-container").insertAdjacentHTML("afterend",
+   const searchBar = document.querySelector(".search-bar-container");
+   searchBar.insertAdjacentHTML("afterend",
       `<div class="weather-info-container">
          <div class="spinner" id="spinner"></div>
          <div id="weatherInfo"></div>
       </div>`
    );
+   return searchBar.nextElementSibling; // the card just added
 }
 
 // Remove the previous weather card and forecast card, if there are any
@@ -263,17 +265,20 @@ const weatherCodes = {
 // If anything fails, the error message is shown in the card.
 async function showWeather(findPlace) {
    removePreviousWeatherContainer();
-   displayWeatherContainer();
+   const card = displayWeatherContainer(); // this search's own card, so a newer search can't mix up results
 
-   const spinner = document.getElementById("spinner");
-   const weatherInfo = document.getElementById("weatherInfo");
+   const spinner = card.querySelector("#spinner");
+   const weatherInfo = card.querySelector("#weatherInfo");
 
    try {
       spinner.style.display = "block"; // display spinner
       const place = await findPlace();
       const dataWeather = await fetchWeatherAt(place.latitude, place.longitude);
+      if (!card.isConnected) {
+         return; // a newer search has replaced this card while we were waiting, so drop these results
+      }
       weatherInfo.innerHTML = weatherCardHTML(place.name, dataWeather);
-      document.querySelector(".weather-info-container").insertAdjacentHTML("afterend", forecastCardHTML(dataWeather.daily));
+      card.insertAdjacentHTML("afterend", forecastCardHTML(dataWeather.daily));
    } catch (error) {
       weatherInfo.innerHTML = error.message;
    } finally {
