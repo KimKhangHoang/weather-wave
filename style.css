@@ -169,7 +169,7 @@ button:hover {
    white-space: nowrap;
 }
 
-/* Loading spinner, shown on its own (no card) where the cards will appear.
+/* Loading spinner, shown on its own (no card) in the middle of the free space between the search area and the footer.
    A see-through white ring with a blue part going round, so it stands out against the sky */
 .spinner {
    border: 0.5rem solid rgba(255, 255, 255, 0.7);
@@ -178,8 +178,13 @@ button:hover {
    width: 4.75rem; /* includes the 0.5rem border on each side */
    height: 4.75rem;
    animation: spin 2s linear infinite; /* Spinning animation */
-   margin-top: 3rem;
+   margin: auto; /* equal auto margins on all sides centre it in the free space */
    flex-shrink: 0; /* never squash it into an oval */
+}
+
+/* While loading, the spinner's margins take all the free space, so the footer's auto margin would only push the spinner up */
+body:has(.spinner) .attribution {
+   margin-top: 0;
 }
 
 @keyframes spin {
@@ -421,6 +426,11 @@ button:hover {
 
    .weather-info-container, .forecast-card {
       margin-top: 2rem; /* both cards start at the same height, and stretch to match the taller one */
+   }
+
+   /* While loading, the spare height goes to the spinner's row instead of the footer's, so the spinner can sit in the middle of it */
+   body:has(.spinner) {
+      grid-template-rows: auto auto 1fr auto;
    }
 
    /* After a failed search there is no forecast card: keep the weather card centred instead of in the left column */
