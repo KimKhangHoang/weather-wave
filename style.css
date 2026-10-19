@@ -298,7 +298,7 @@ body:has(.spinner) .attribution {
    display: flex;
    overflow-x: auto;
    scrollbar-width: thin;
-   scrollbar-color: black transparent; /* black bar on a see-through track, so it stands out against the light card */
+   scrollbar-color: rgb(91, 91, 91) transparent; /* same grey as the card's headings, on a see-through track */
 }
 
 /* One hour: time, icon, temperature and chance of rain stacked in a small column.
