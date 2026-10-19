@@ -297,7 +297,7 @@ button:hover {
    display: flex;
    overflow-x: auto;
    scrollbar-width: thin;
-   scrollbar-color: rgba(58, 127, 181, 0.35) transparent;
+   scrollbar-color: black transparent; /* black bar on a see-through track, so it stands out against the light card */
 }
 
 /* One hour: time, icon, temperature and chance of rain stacked in a small column.
