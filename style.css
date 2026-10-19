@@ -169,16 +169,22 @@ button:hover {
    white-space: nowrap;
 }
 
+/* Loading spinner, shown on its own (no card) in the middle of the free space between the search area and the footer.
+   A see-through white ring with a blue part going round, so it stands out against the sky */
 .spinner {
-   display: none; /* Initially hidden */
-   border: 0.5rem solid whitesmoke;
+   border: 0.5rem solid rgba(255, 255, 255, 0.7);
    border-radius: 50%;
-   border-top: 0.5rem solid #3498db;
-   width: 4.75rem; /* includes the 0.5rem border on each side, so the spinner stays its original size */
+   border-top-color: #007BFF; /* same blue as the Search button */
+   width: 4.75rem; /* includes the 0.5rem border on each side */
    height: 4.75rem;
    animation: spin 2s linear infinite; /* Spinning animation */
-   margin: auto; /* Center horizontally */
+   margin: auto; /* equal auto margins on all sides centre it in the free space */
    flex-shrink: 0; /* never squash it into an oval */
+}
+
+/* While loading, the spinner's margins take all the free space, so the footer's auto margin would only push the spinner up */
+body:has(.spinner) .attribution {
+   margin-top: 0;
 }
 
 @keyframes spin {
@@ -202,18 +208,13 @@ button:hover {
 }
 
 /* The card's contents as a column. Messages (e.g. errors) sit centred.
-   When the card is taller than its contents, the weather stats' auto top margin takes the spare space,
-   so the date stays at the top and the stats at the bottom */
+   When the card is taller than its contents, the weather stats' auto margins share the spare space equally above and below them,
+   so the date stays at the top and the stats sit evenly in the space left */
 #weatherInfo {
    width: 100%;
    display: flex;
    flex-direction: column;
    justify-content: center;
-}
-
-/* While loading the info box is empty, so hide it and leave the card's space to the spinner */
-#weatherInfo:empty {
-   display: none;
 }
 
 /* Date on the left, time on the right, as a normal row so it always keeps its gap above the heading */
@@ -253,7 +254,7 @@ button:hover {
 /* Humidity, wind and precipitation side by side, sharing the card's width equally */
 .weather-stats {
    display: flex;
-   margin-top: auto;
+   margin: auto 0;
    padding-top: 1rem;
 }
 
@@ -273,7 +274,7 @@ button:hover {
    font-weight: bolder;
 }
 
-/* 7-day forecast card below the current weather: same width and shape as the weather card */
+/* Forecast card (next 24 hours and next 7 days): same width and shape as the weather card */
 .forecast-card {
    width: 100%;
    max-width: 27rem;
@@ -286,6 +287,51 @@ button:hover {
 .forecast-card h3 {
    font-size: 1rem;
    margin: 0 0 0.25rem;
+}
+
+/* Next 24 hours: the hours side by side in one row, which scrolls sideways.
+   A thin scrollbar under it shows there is more to see (phones only show one while scrolling). */
+.hourly-strip {
+   list-style: none;
+   margin: 0 0 0.75rem;
+   padding: 0 0 0.5rem;
+   display: flex;
+   overflow-x: auto;
+   scrollbar-width: thin;
+   scrollbar-color: rgb(91, 91, 91) transparent; /* same grey as the card's headings, on a see-through track */
+}
+
+/* One hour: time, icon, temperature and chance of rain stacked in a small column.
+   Each hour is a fixed share of the strip's width, so the last one on screen is always cut in half, hinting that the strip scrolls. */
+.hour {
+   flex: 0 0 calc(100% / 5.5); /* five and a half hours show */
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   gap: 0.35rem;
+   padding: 0.5rem 0.25rem;
+   font-size: 0.85rem;
+}
+
+/* Room for one more hour once the strip is wide enough */
+@media (min-width: 26rem) {
+   .hour {
+      flex-basis: calc(100% / 6.5);
+   }
+}
+
+.hour-icon {
+   font-size: 1.25rem;
+   color: rgb(79, 160, 134);
+}
+
+.hour-temp {
+   font-weight: bold;
+}
+
+.hour-rain {
+   font-size: 0.75rem;
+   color: #3a7fb5;
 }
 
 .forecast-days {
@@ -336,8 +382,12 @@ button:hover {
    font-weight: bold;
 }
 
-/* Very small phones: less padding at the edges and smaller stat labels, so "Precipitation" fits in its column */
+/* Very small phones: less padding at the edges, smaller stat labels so "Precipitation" fits in its column, and fewer hours showing so each is wide enough */
 @media (max-width: 360px) {
+   .hour {
+      flex-basis: calc(100% / 4.5);
+   }
+
    body {
       padding: 0 0.5rem;
    }
@@ -363,7 +413,7 @@ button:hover {
       column-gap: 1.5rem;
    }
 
-   h1, .search-bar-container, .attribution {
+   h1, .search-bar-container, .spinner, .attribution {
       grid-column: 1 / -1; /* span both columns */
       justify-self: center;
    }
@@ -378,7 +428,12 @@ button:hover {
       margin-top: 2rem; /* both cards start at the same height, and stretch to match the taller one */
    }
 
-   /* While loading, or after a failed search, there is no forecast card: keep the weather card centred instead of in the left column */
+   /* While loading, the spare height goes to the spinner's row instead of the footer's, so the spinner can sit in the middle of it */
+   body:has(.spinner) {
+      grid-template-rows: auto auto 1fr auto;
+   }
+
+   /* After a failed search there is no forecast card: keep the weather card centred instead of in the left column */
    body:not(:has(.forecast-card)) .weather-info-container {
       grid-column: 1 / -1;
       justify-self: center;

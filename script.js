@@ -191,23 +191,26 @@ document.getElementById("location").addEventListener("keydown", function(event) 
    }
 });
 
-// Display a weather information container straight after the search bar (and above the footer), and hand it back
-function displayWeatherContainer() {
+// Display a loading spinner straight after the search bar (and above the footer), and hand it back
+function displaySpinner() {
    const searchBar = document.querySelector(".search-bar-container");
-   searchBar.insertAdjacentHTML("afterend",
-      `<div class="weather-info-container">
-         <div class="spinner" id="spinner"></div>
-         <div id="weatherInfo"></div>
-      </div>`
-   );
-   return searchBar.nextElementSibling; // the card just added
+   searchBar.insertAdjacentHTML("afterend", `<div class="spinner" role="status" aria-label="Loading the weather"></div>`);
+   return searchBar.nextElementSibling; // the spinner just added
 }
 
-// Remove the previous weather card and forecast card, if there are any
+// Remove the previous spinner, weather card and forecast card, if there are any
 function removePreviousWeatherContainer() {
-   document.querySelectorAll(".weather-info-container, .forecast-card").forEach(function(card) {
-      card.remove();
+   document.querySelectorAll(".spinner, .weather-info-container, .forecast-card").forEach(function(element) {
+      element.remove();
    });
+}
+
+// Put content (the weather, or an error message) inside a weather card
+function weatherContainerHTML(content) {
+   return `
+      <div class="weather-info-container">
+         <div id="weatherInfo">${content}</div>
+      </div>`;
 }
 
 // Turn a place name into coordinates using Open-Meteo's geocoding service (no API key needed)
@@ -260,38 +263,36 @@ const weatherCodes = {
    99: { description: "thunderstorm with heavy hail", icon: "fa-cloud-bolt" }
 };
 
-// Show the weather card for a place.
+// Show the weather card and forecast card for a place, with a spinner while waiting.
 // findPlace is a function telling it where to look (typed search or device location) and returning {latitude, longitude, name}.
-// If anything fails, the error message is shown in the card.
+// If anything fails, the error message is shown in the weather card instead.
 async function showWeather(findPlace) {
    removePreviousWeatherContainer();
-   const card = displayWeatherContainer(); // this search's own card, so a newer search can't mix up results
+   const spinner = displaySpinner(); // this search's own spinner, so a newer search can't mix up results
 
-   const spinner = card.querySelector("#spinner");
-   const weatherInfo = card.querySelector("#weatherInfo");
-
+   let cardsHTML;
    try {
-      spinner.style.display = "block"; // display spinner
       const place = await findPlace();
       const dataWeather = await fetchWeatherAt(place.latitude, place.longitude);
-      if (!card.isConnected) {
-         return; // a newer search has replaced this card while we were waiting, so drop these results
-      }
-      weatherInfo.innerHTML = weatherCardHTML(place.name, dataWeather);
-      card.insertAdjacentHTML("afterend", forecastCardHTML(dataWeather.daily));
+      cardsHTML = weatherContainerHTML(weatherCardHTML(place.name, dataWeather)) + forecastCardHTML(dataWeather);
    } catch (error) {
-      weatherInfo.innerHTML = error.message;
-   } finally {
-      spinner.style.display = "none"; // hide spinner whether the search worked or failed
+      cardsHTML = weatherContainerHTML(error.message);
    }
+
+   if (!spinner.isConnected) {
+      return; // a newer search has replaced this one while we were waiting, so drop these results
+   }
+   spinner.insertAdjacentHTML("afterend", cardsHTML); // the cards take the spinner's place
+   spinner.remove();
 }
 
-// Ask Open-Meteo for the current weather and the 7-day forecast at a point, in one request.
+// Ask Open-Meteo for the current weather, the hour-by-hour forecast and the 7-day forecast at a point, in one request.
 // Only the values the page shows are requested.
 async function fetchWeatherAt(latitude, longitude) {
    const currentFields = "temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,weather_code,wind_speed_10m,is_day";
+   const hourlyFields = "temperature_2m,weather_code,precipitation_probability,is_day";
    const dailyFields = "weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max";
-   const apiURLWeather = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=${currentFields}&daily=${dailyFields}&forecast_days=7&timezone=auto`; // timezone=auto makes each day run midnight to midnight at that place
+   const apiURLWeather = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=${currentFields}&hourly=${hourlyFields}&daily=${dailyFields}&forecast_days=7&timezone=auto`; // timezone=auto makes each day run midnight to midnight at that place
 
    const responseWeather = await fetch(apiURLWeather);
    if (!responseWeather.ok) {
@@ -363,9 +364,10 @@ function conditionFor(code) {
    return weatherCodes[code] || { description: "unknown", icon: "fa-cloud" };
 }
 
-// Build the 7-day forecast card: one row per day with its icon, chance of rain, and low / high temperature.
+// Build the forecast card: the next 24 hours at the top, then one row per day with its icon, chance of rain, and low / high temperature.
 // Open-Meteo sends each value as a list with one entry per day, so entry i of each list belongs to the same day.
-function forecastCardHTML(daily) {
+function forecastCardHTML(dataWeather) {
+   const daily = dataWeather.daily;
    const rows = daily.time.map(function(day, i) {
       const condition = conditionFor(daily.weather_code[i]);
       const description = capitalizeFirstLetter(condition.description);
@@ -386,9 +388,36 @@ function forecastCardHTML(daily) {
 
    return `
       <section class="forecast-card">
-         <h3>7-day forecast</h3>
+         ${hourlyStripHTML(dataWeather.hourly, dataWeather.current.time)}
+         <h3>Next 7 days</h3>
          <ol class="forecast-days">${rows}</ol>
       </section>`;
+}
+
+// Build the "Next 24 hours" strip: one item per hour, starting from the current hour, with its icon, temperature and chance of rain.
+// The hourly lists start at midnight at that place, so the hours already gone are skipped.
+function hourlyStripHTML(hourly, currentTime) {
+   const currentHour = currentTime.slice(0, 13) + ":00"; // e.g. "2026-10-18T23:45" becomes "2026-10-18T23:00"
+   const start = Math.max(hourly.time.indexOf(currentHour), 0); // start of the list if the hour can't be found
+   const items = hourly.time.slice(start, start + 24).map(function(time, n) {
+      const i = start + n; // position of this hour in the full lists
+      const condition = conditionFor(hourly.weather_code[i]);
+      const description = capitalizeFirstLetter(condition.description);
+      const icon = (!hourly.is_day[i] && condition.nightIcon) || condition.icon; // moon instead of sun after dark, like the weather card
+      const temperature = hourly.temperature_2m[i];
+      const rainChance = hourly.precipitation_probability[i]; // can be missing for some places
+      return `
+         <li class="hour">
+            <span class="hour-time">${n === 0 ? "Now" : time.slice(11)}</span>
+            <span class="hour-icon fa-solid ${icon}" role="img" aria-label="${description}" title="${description}"></span>
+            <span class="hour-temp" data-celsius="${temperature}" data-short>${formatTemperature(temperature, false)}</span>
+            <span class="hour-rain"><span class="fa-solid fa-droplet" aria-hidden="true"></span> ${rainChance == null ? "–" : rainChance + "%"}</span>
+         </li>`;
+   }).join("");
+
+   return `
+      <h3>Next 24 hours</h3>
+      <ol class="hourly-strip">${items}</ol>`;
 }
 
 // Short weekday name for a date like "2026-10-18", e.g. "Sun".
