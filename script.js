@@ -191,23 +191,26 @@ document.getElementById("location").addEventListener("keydown", function(event) 
    }
 });
 
-// Display a weather information container straight after the search bar (and above the footer), and hand it back
-function displayWeatherContainer() {
+// Display a loading spinner straight after the search bar (and above the footer), and hand it back
+function displaySpinner() {
    const searchBar = document.querySelector(".search-bar-container");
-   searchBar.insertAdjacentHTML("afterend",
-      `<div class="weather-info-container">
-         <div class="spinner" id="spinner"></div>
-         <div id="weatherInfo"></div>
-      </div>`
-   );
-   return searchBar.nextElementSibling; // the card just added
+   searchBar.insertAdjacentHTML("afterend", `<div class="spinner" role="status" aria-label="Loading the weather"></div>`);
+   return searchBar.nextElementSibling; // the spinner just added
 }
 
-// Remove the previous weather card and forecast card, if there are any
+// Remove the previous spinner, weather card and forecast card, if there are any
 function removePreviousWeatherContainer() {
-   document.querySelectorAll(".weather-info-container, .forecast-card").forEach(function(card) {
-      card.remove();
+   document.querySelectorAll(".spinner, .weather-info-container, .forecast-card").forEach(function(element) {
+      element.remove();
    });
+}
+
+// Put content (the weather, or an error message) inside a weather card
+function weatherContainerHTML(content) {
+   return `
+      <div class="weather-info-container">
+         <div id="weatherInfo">${content}</div>
+      </div>`;
 }
 
 // Turn a place name into coordinates using Open-Meteo's geocoding service (no API key needed)
@@ -260,30 +263,27 @@ const weatherCodes = {
    99: { description: "thunderstorm with heavy hail", icon: "fa-cloud-bolt" }
 };
 
-// Show the weather card for a place.
+// Show the weather card and forecast card for a place, with a spinner while waiting.
 // findPlace is a function telling it where to look (typed search or device location) and returning {latitude, longitude, name}.
-// If anything fails, the error message is shown in the card.
+// If anything fails, the error message is shown in the weather card instead.
 async function showWeather(findPlace) {
    removePreviousWeatherContainer();
-   const card = displayWeatherContainer(); // this search's own card, so a newer search can't mix up results
+   const spinner = displaySpinner(); // this search's own spinner, so a newer search can't mix up results
 
-   const spinner = card.querySelector("#spinner");
-   const weatherInfo = card.querySelector("#weatherInfo");
-
+   let cardsHTML;
    try {
-      spinner.style.display = "block"; // display spinner
       const place = await findPlace();
       const dataWeather = await fetchWeatherAt(place.latitude, place.longitude);
-      if (!card.isConnected) {
-         return; // a newer search has replaced this card while we were waiting, so drop these results
-      }
-      weatherInfo.innerHTML = weatherCardHTML(place.name, dataWeather);
-      card.insertAdjacentHTML("afterend", forecastCardHTML(dataWeather));
+      cardsHTML = weatherContainerHTML(weatherCardHTML(place.name, dataWeather)) + forecastCardHTML(dataWeather);
    } catch (error) {
-      weatherInfo.innerHTML = error.message;
-   } finally {
-      spinner.style.display = "none"; // hide spinner whether the search worked or failed
+      cardsHTML = weatherContainerHTML(error.message);
    }
+
+   if (!spinner.isConnected) {
+      return; // a newer search has replaced this one while we were waiting, so drop these results
+   }
+   spinner.insertAdjacentHTML("afterend", cardsHTML); // the cards take the spinner's place
+   spinner.remove();
 }
 
 // Ask Open-Meteo for the current weather, the hour-by-hour forecast and the 7-day forecast at a point, in one request.
