@@ -273,7 +273,7 @@ button:hover {
    font-weight: bolder;
 }
 
-/* 7-day forecast card below the current weather: same width and shape as the weather card */
+/* Forecast card (next 24 hours and next 7 days): same width and shape as the weather card */
 .forecast-card {
    width: 100%;
    max-width: 27rem;

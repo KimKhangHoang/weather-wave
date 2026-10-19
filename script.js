@@ -389,7 +389,7 @@ function forecastCardHTML(dataWeather) {
    return `
       <section class="forecast-card">
          ${hourlyStripHTML(dataWeather.hourly, dataWeather.current.time)}
-         <h3>7-day forecast</h3>
+         <h3>Next 7 days</h3>
          <ol class="forecast-days">${rows}</ol>
       </section>`;
 }
