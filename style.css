@@ -288,26 +288,35 @@ button:hover {
    margin: 0 0 0.25rem;
 }
 
-/* Next 24 hours: the hours side by side in one row, which scrolls sideways when they don't all fit */
+/* Next 24 hours: the hours side by side in one row, which scrolls sideways.
+   A thin scrollbar under it shows there is more to see (phones only show one while scrolling). */
 .hourly-strip {
    list-style: none;
    margin: 0 0 0.75rem;
    padding: 0 0 0.5rem;
    display: flex;
-   gap: 0.25rem;
    overflow-x: auto;
+   scrollbar-width: thin;
+   scrollbar-color: rgba(58, 127, 181, 0.35) transparent;
 }
 
-/* One hour: time, icon, temperature and chance of rain stacked in a small column */
+/* One hour: time, icon, temperature and chance of rain stacked in a small column.
+   Each hour is a fixed share of the strip's width, so the last one on screen is always cut in half, hinting that the strip scrolls. */
 .hour {
-   flex: 0 0 auto; /* keep each hour its natural width instead of squeezing them all in */
+   flex: 0 0 calc(100% / 5.5); /* five and a half hours show */
    display: flex;
    flex-direction: column;
    align-items: center;
    gap: 0.35rem;
-   min-width: 3.25rem;
    padding: 0.5rem 0.25rem;
    font-size: 0.85rem;
+}
+
+/* Room for one more hour once the strip is wide enough */
+@media (min-width: 26rem) {
+   .hour {
+      flex-basis: calc(100% / 6.5);
+   }
 }
 
 .hour-icon {
@@ -372,8 +381,12 @@ button:hover {
    font-weight: bold;
 }
 
-/* Very small phones: less padding at the edges and smaller stat labels, so "Precipitation" fits in its column */
+/* Very small phones: less padding at the edges, smaller stat labels so "Precipitation" fits in its column, and fewer hours showing so each is wide enough */
 @media (max-width: 360px) {
+   .hour {
+      flex-basis: calc(100% / 4.5);
+   }
+
    body {
       padding: 0 0.5rem;
    }
