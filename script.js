@@ -403,12 +403,13 @@ function hourlyStripHTML(hourly, currentTime) {
       const i = start + n; // position of this hour in the full lists
       const condition = conditionFor(hourly.weather_code[i]);
       const description = capitalizeFirstLetter(condition.description);
+      const icon = (!hourly.is_day[i] && condition.nightIcon) || condition.icon; // moon instead of sun after dark, like the weather card
       const temperature = hourly.temperature_2m[i];
       const rainChance = hourly.precipitation_probability[i]; // can be missing for some places
       return `
          <li class="hour">
-            <span class="hour-time">${time.slice(11)}</span>
-            <span class="hour-icon fa-solid ${condition.icon}" role="img" aria-label="${description}" title="${description}"></span>
+            <span class="hour-time">${n === 0 ? "Now" : time.slice(11)}</span>
+            <span class="hour-icon fa-solid ${icon}" role="img" aria-label="${description}" title="${description}"></span>
             <span class="hour-temp" data-celsius="${temperature}" data-short>${formatTemperature(temperature, false)}</span>
             <span class="hour-rain"><span class="fa-solid fa-droplet" aria-hidden="true"></span> ${rainChance == null ? "–" : rainChance + "%"}</span>
          </li>`;
