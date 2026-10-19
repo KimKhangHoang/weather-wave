@@ -202,8 +202,8 @@ button:hover {
 }
 
 /* The card's contents as a column. Messages (e.g. errors) sit centred.
-   When the card is taller than its contents, the weather stats' auto top margin takes the spare space,
-   so the date stays at the top and the stats at the bottom */
+   When the card is taller than its contents, the weather stats' auto margins share the spare space equally above and below them,
+   so the date stays at the top and the stats sit evenly in the space left */
 #weatherInfo {
    width: 100%;
    display: flex;
@@ -253,7 +253,7 @@ button:hover {
 /* Humidity, wind and precipitation side by side, sharing the card's width equally */
 .weather-stats {
    display: flex;
-   margin-top: auto;
+   margin: auto 0;
    padding-top: 1rem;
 }
 
