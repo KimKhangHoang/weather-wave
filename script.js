@@ -81,6 +81,7 @@ function search() {
   if (location === "") {
     return;
   }
+  countEvent("search");
   showWeather(async function () {
     const place = await geocodeLocation(location);
     return {
@@ -91,6 +92,15 @@ function search() {
   });
 }
 
+// Count a use of the app (e.g. a search) as an event in GoatCounter, so the stats show how the app is used, not just visits.
+// Only the event name is sent, never what was typed or where the user is.
+// Does nothing if GoatCounter hasn't loaded, e.g. when an ad blocker stops it.
+function countEvent(name) {
+  if (window.goatcounter && window.goatcounter.count) {
+    window.goatcounter.count({ path: name, event: true });
+  }
+}
+
 // Name for the card heading, e.g. "São Paulo, Brazil".
 // Just the name when there is no country, or when the place is the country itself (e.g. "Vietnam", "Singapore")
 function placeLabel(name, country) {
@@ -99,6 +109,7 @@ function placeLabel(name, country) {
 
 // Run a search for the device's location, named after the town it is in (or "Your location" if that can't be found)
 function searchMyLocation() {
+  countEvent("use-my-location");
   showWeather(async function () {
     const position = await getDevicePosition();
     const latitude = position.coords.latitude;
