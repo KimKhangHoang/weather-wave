@@ -4,95 +4,68 @@
 
 <!doctype html>
 <html lang="en">
-  <head>
-    <title>WeatherWave</title>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link
-      rel="apple-touch-icon"
-      sizes="180x180"
-      href="favicon_io/apple-touch-icon.png"
-    />
-    <link
-      rel="icon"
-      type="image/png"
-      sizes="32x32"
-      href="favicon_io/favicon-32x32.png"
-    />
-    <link
-      rel="icon"
-      type="image/png"
-      sizes="16x16"
-      href="favicon_io/favicon-16x16.png"
-    />
-    <link rel="manifest" href="favicon_io/site.webmanifest" />
-    <link rel="stylesheet" href="style.css" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    />
-  </head>
-  <body>
-    <h1>Weather App</h1>
+    <head>
+        <title>WeatherWave</title>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="apple-touch-icon" sizes="180x180" href="favicon_io/apple-touch-icon.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="favicon_io/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="favicon_io/favicon-16x16.png" />
+        <link rel="manifest" href="favicon_io/site.webmanifest" />
+        <link rel="stylesheet" href="style.css" />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+            integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+        />
+    </head>
+    <body>
+        <h1>Weather App</h1>
 
-    <div class="search-bar-container">
-      <div class="weather-search">
-        <input type="text" id="location" placeholder="Enter location" />
-        <button
-          type="button"
-          id="useLocation"
-          aria-label="Use my location"
-          title="Use my location"
-        >
-          <span
-            class="fa-solid fa-location-crosshairs"
-            aria-hidden="true"
-          ></span>
-        </button>
-        <button id="searchWeather">Search</button>
-      </div>
-      <button
-        type="button"
-        id="unitSwitch"
-        role="switch"
-        aria-checked="false"
-        aria-label="Show temperatures in Fahrenheit"
-      >
-        <span class="unit-switch-thumb"></span>
-        <span class="unit-option active" data-unit="C">°C</span>
-        <span class="unit-option" data-unit="F">°F</span>
-      </button>
-    </div>
+        <div class="search-bar-container">
+            <div class="weather-search">
+                <input type="text" id="location" placeholder="Enter location" />
+                <button type="button" id="useLocation" aria-label="Use my location" title="Use my location">
+                    <span class="fa-solid fa-location-crosshairs" aria-hidden="true"></span>
+                </button>
+                <button id="searchWeather">Search</button>
+            </div>
+            <button
+                type="button"
+                id="unitSwitch"
+                role="switch"
+                aria-checked="false"
+                aria-label="Show temperatures in Fahrenheit"
+            >
+                <span class="unit-switch-thumb"></span>
+                <span class="unit-option active" data-unit="C">°C</span>
+                <span class="unit-option" data-unit="F">°F</span>
+            </button>
+        </div>
 
-    <footer class="attribution">
-      <span class="credit"
-        >Weather data by
-        <a href="https://open-meteo.com/" target="_blank" rel="noopener"
-          >Open-Meteo.com</a
-        >
-        ·</span
-      >
-      <span class="credit"
-        >Place names ©
-        <a
-          href="https://www.openstreetmap.org/copyright"
-          target="_blank"
-          rel="noopener"
-          >OpenStreetMap contributors</a
-        ></span
-      >
-    </footer>
+        <footer class="attribution">
+            <span class="credit"
+                >Weather data by
+                <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo.com</a>
+                ·</span
+            >
+            <span class="credit"
+                >Place names ©
+                <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener"
+                    >OpenStreetMap contributors</a
+                ></span
+            >
+        </footer>
 
-    <script src="script.js"></script>
+        <script src="script.js"></script>
 
-    <!-- Visit counting by GoatCounter (no IP addresses stored). Visits from localhost aren't counted. -->
-    <script
-      data-goatcounter="https://weatherwave.goatcounter.com/count"
-      async
-      src="https://gc.zgo.at/count.js"
-    ></script>
-  </body>
+        <!-- Visit counting by GoatCounter (no IP addresses stored). Visits from localhost aren't counted. -->
+        <script
+            data-goatcounter="https://weatherwave.goatcounter.com/count"
+            async
+            src="https://gc.zgo.at/count.js"
+        ></script>
+    </body>
 </html>
