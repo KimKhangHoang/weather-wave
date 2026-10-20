@@ -72,6 +72,15 @@ requestAnimationFrame(function () {
     });
 });
 
+// Change the background sky. The scene names match the data-sky styles in style.css, e.g. "clear-day" or "clear-night"
+function setSky(scene) {
+    document.body.dataset.sky = scene;
+}
+
+// Until a place is searched, the visitor's own clock picks a day or night sky (daytime counted as 6am to 6pm)
+const hourNow = new Date().getHours();
+setSky(hourNow >= 6 && hourNow < 18 ? "clear-day" : "clear-night");
+
 // Run a search for the typed place, unless nothing (or only spaces) has been typed
 function search() {
     const location = document.getElementById("location").value.trim(); // the entered location (API handles case sensitivity)

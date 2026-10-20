@@ -17,16 +17,32 @@ html {
     box-sizing: border-box;
 }
 
+/* Sky scenes for the background. Each one sets:
+   --sky: the background gradient
+   --on-sky: the colour of text sitting straight on the sky (heading and footer)
+   --on-sky-shadow: a soft shadow behind that text, so light text stays readable
+   script.js picks the scene by setting data-sky on the body. Clear day is the default. */
+:root {
+    /* blue fading to a soft peach near the horizon */
+    --sky: linear-gradient(180deg, #1e9be0 0%, #7cc3ee 45%, #dcedf8 78%, #f5d6cb 100%);
+    --on-sky: black;
+    --on-sky-shadow: none;
+}
+
+body[data-sky="clear-night"] {
+    /* deep navy, slightly lighter near the horizon */
+    --sky: linear-gradient(180deg, #0b1630 0%, #1b2d55 55%, #3a4a78 100%);
+    --on-sky: white;
+    --on-sky-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
 /* Stack everything in a centred column, with a small gap at the screen edges on narrow phones */
 body {
     font-family: Verdana, Tahoma, Arial, sans-serif;
     text-align: center;
-    background-color: #f0f0f0;
-    background-image: url("images/background.jpg");
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
+    background-color: #7cc3ee; /* plain sky blue, in case the gradient can't be shown */
+    background-image: var(--sky);
+    background-attachment: fixed; /* the sky stays still while the page scrolls */
     margin: 0;
     padding: 0 1rem;
     min-height: 100vh; /* fallback for older browsers */
@@ -38,6 +54,13 @@ body {
 
 h1 {
     margin-top: 2rem;
+}
+
+/* Heading and footer sit straight on the sky, so they take the scene's text colour */
+h1,
+.attribution {
+    color: var(--on-sky);
+    text-shadow: var(--on-sky-shadow);
 }
 
 .search-bar-container {
