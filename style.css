@@ -7,435 +7,454 @@
 /* Text size grows smoothly with screen width: 16px on phones, tablets and laptops, up to 22px on very large screens.
    Everything sized in rem scales with it. Using rem (not px) also respects the visitor's own browser font size setting. */
 html {
-   font-size: clamp(1rem, 0.4vw + 0.625rem, 1.375rem);
+  font-size: clamp(1rem, 0.4vw + 0.625rem, 1.375rem);
 }
 
 /* Widths and heights include padding and borders, so "100%" never spills past the screen edge */
-*, *::before, *::after {
-   box-sizing: border-box;
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 /* Stack everything in a centred column, with a small gap at the screen edges on narrow phones */
 body {
-   font-family: Verdana, Tahoma, Arial, sans-serif;
-   text-align: center;
-   background-color: #f0f0f0;
-   background-image: url('images/background.jpg');
-   background-size: cover;
-   background-position: center;
-   background-repeat: no-repeat;
-   background-attachment: fixed;
-   margin: 0;
-   padding: 0 1rem;
-   min-height: 100vh; /* fallback for older browsers */
-   min-height: 100dvh; /* visible screen height, so on phones the footer isn't hidden behind the browser's address bar */
-   display: flex;
-   flex-direction: column;
-   align-items: center;
+  font-family: Verdana, Tahoma, Arial, sans-serif;
+  text-align: center;
+  background-color: #f0f0f0;
+  background-image: url("images/background.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  margin: 0;
+  padding: 0 1rem;
+  min-height: 100vh; /* fallback for older browsers */
+  min-height: 100dvh; /* visible screen height, so on phones the footer isn't hidden behind the browser's address bar */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 h1 {
-   margin-top: 2rem;
+  margin-top: 2rem;
 }
 
 .search-bar-container {
-   max-width: 100%; /* no top margin, the heading's bottom margin already provides the gap */
+  max-width: 100%; /* no top margin, the heading's bottom margin already provides the gap */
 }
 
 /* Natural width on big screens, but allowed to shrink (by narrowing the text box) on small ones */
 /* Shared look for every panel (search box, unit switch, weather card and forecast card):
    frosted white fading diagonally to a pale sky blue, slightly see-through so the background shows behind */
-.weather-search, #unitSwitch, .weather-info-container, .forecast-card {
-   background: linear-gradient(135deg, rgba(255, 255, 255, 0.97) 0%, rgba(226, 236, 248, 0.95) 50%, rgba(184, 208, 236, 0.95) 100%);
-   border: 1px solid rgba(255, 255, 255, 0.6);
-   box-shadow: 0 0.5rem 1.5rem rgba(15, 35, 60, 0.15);
-   -webkit-backdrop-filter: blur(6px); /* Safari */
-   backdrop-filter: blur(6px);
+.weather-search,
+#unitSwitch,
+.weather-info-container,
+.forecast-card {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.97) 0%,
+    rgba(226, 236, 248, 0.95) 50%,
+    rgba(184, 208, 236, 0.95) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 0.5rem 1.5rem rgba(15, 35, 60, 0.15);
+  -webkit-backdrop-filter: blur(6px); /* Safari */
+  backdrop-filter: blur(6px);
 }
 
 .weather-search {
-   border-radius: 0.5rem;
-   padding: 1.25rem;
-   display: inline-flex;
-   max-width: 100%;
-   margin-top: 0.5rem;
+  border-radius: 0.5rem;
+  padding: 1.25rem;
+  display: inline-flex;
+  max-width: 100%;
+  margin-top: 0.5rem;
 }
 
 .weather-search input {
-   flex: 1;
-   min-width: 0;
+  flex: 1;
+  min-width: 0;
 }
 
-input, button {
-   font-size: 1rem;
-   padding: 0.625rem;
-   margin: 0.3125rem;
-   border-radius: 0.25rem;
-   border: 1px solid #ccc;
+input,
+button {
+  font-size: 1rem;
+  padding: 0.625rem;
+  margin: 0.3125rem;
+  border-radius: 0.25rem;
+  border: 1px solid #ccc;
 }
 
 button {
-   background-color: #007BFF;
-   color: white;
-   border: none;
-   cursor: pointer;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
 }
 
 button:hover {
-   background-color: #0056b3;
+  background-color: #0056b3;
 }
 
 #useLocation {
-   background-color: white;
-   color: #007BFF;
-   border: 1px solid #ccc;
+  background-color: white;
+  color: #007bff;
+  border: 1px solid #ccc;
 }
 
 #useLocation:hover {
-   background-color: #f3f6fb;
+  background-color: #f3f6fb;
 }
 
 /* °C / °F switch under the search box: one white pill with a blue highlight that slides behind the chosen unit */
 #unitSwitch {
-   position: relative;
-   display: flex;
-   width: fit-content;
-   margin: 0.75rem auto 0;
-   padding: 0.25rem;
-   border-radius: 999px;
+  position: relative;
+  display: flex;
+  width: fit-content;
+  margin: 0.75rem auto 0;
+  padding: 0.25rem;
+  border-radius: 999px;
 }
 
 #unitSwitch:hover {
-   background-color: transparent; /* keep the panel look, instead of the dark blue hover used by other buttons */
+  background-color: transparent; /* keep the panel look, instead of the dark blue hover used by other buttons */
 }
 
 /* The two units inside the pill. They sit above the highlight, and the chosen one turns white */
 .unit-option {
-   position: relative;
-   z-index: 1;
-   width: 2.75rem;
-   padding: 0.3rem 0;
-   font-weight: bold;
-   color: rgb(150, 150, 150);
-   transition: color 0.25s;
+  position: relative;
+  z-index: 1;
+  width: 2.75rem;
+  padding: 0.3rem 0;
+  font-weight: bold;
+  color: rgb(150, 150, 150);
+  transition: color 0.25s;
 }
 
 .unit-option.active {
-   color: white;
+  color: white;
 }
 
 /* The blue highlight. It is exactly one unit wide, so moving it by its own width (100%) lands it on °F */
 .unit-switch-thumb {
-   position: absolute;
-   top: 0.25rem;
-   bottom: 0.25rem;
-   left: 0.25rem;
-   width: 2.75rem;
-   border-radius: 999px;
-   background-color: #007BFF;
+  position: absolute;
+  top: 0.25rem;
+  bottom: 0.25rem;
+  left: 0.25rem;
+  width: 2.75rem;
+  border-radius: 999px;
+  background-color: #007bff;
 }
 
 #unitSwitch[aria-checked="true"] .unit-switch-thumb {
-   transform: translateX(100%);
+  transform: translateX(100%);
 }
 
 /* Only animate once the page has loaded, so a saved °F choice doesn't slide into place on every visit */
 #unitSwitch.ready .unit-switch-thumb {
-   transition: transform 0.25s ease;
+  transition: transform 0.25s ease;
 }
 
 /* Respect the "reduce motion" accessibility setting */
 @media (prefers-reduced-motion: reduce) {
-   #unitSwitch.ready .unit-switch-thumb,
-   .unit-option {
-      transition: none;
-   }
+  #unitSwitch.ready .unit-switch-thumb,
+  .unit-option {
+    transition: none;
+  }
 }
 
 /* Footer: the automatic top margin takes up any spare space, which keeps it at the bottom of the screen.
    The top padding keeps a gap above it when the page is long enough to scroll. */
 .attribution {
-   font-size: 0.75rem;
-   margin: auto 0 1rem;
-   padding-top: 2rem;
+  font-size: 0.75rem;
+  margin: auto 0 1rem;
+  padding-top: 2rem;
 }
 
 .attribution a {
-   color: inherit;
+  color: inherit;
 }
 
 /* Keep each credit on one line, so on narrow screens the footer wraps between credits rather than in the middle of one */
 .credit {
-   white-space: nowrap;
+  white-space: nowrap;
 }
 
 /* Loading spinner, shown on its own (no card) in the middle of the free space between the search area and the footer.
    A see-through white ring with a blue part going round, so it stands out against the sky */
 .spinner {
-   border: 0.5rem solid rgba(255, 255, 255, 0.7);
-   border-radius: 50%;
-   border-top-color: #007BFF; /* same blue as the Search button */
-   width: 4.75rem; /* includes the 0.5rem border on each side */
-   height: 4.75rem;
-   animation: spin 2s linear infinite; /* Spinning animation */
-   margin: auto; /* equal auto margins on all sides centre it in the free space */
-   flex-shrink: 0; /* never squash it into an oval */
+  border: 0.5rem solid rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+  border-top-color: #007bff; /* same blue as the Search button */
+  width: 4.75rem; /* includes the 0.5rem border on each side */
+  height: 4.75rem;
+  animation: spin 2s linear infinite; /* Spinning animation */
+  margin: auto; /* equal auto margins on all sides centre it in the free space */
+  flex-shrink: 0; /* never squash it into an oval */
 }
 
 /* While loading, the spinner's margins take all the free space, so the footer's auto margin would only push the spinner up */
 body:has(.spinner) .attribution {
-   margin-top: 0;
+  margin-top: 0;
 }
 
 @keyframes spin {
-   0% { transform: rotate(0deg); }
-   100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .weather-info-container {
-   border-radius: 1.875rem;
-   color: rgb(91, 91, 91);
-   margin-top: 2rem;
-   padding: 1rem;
-   display: flex;
-   position: relative;
-   text-align: center;
-   justify-content: center;
-   align-items: stretch;
-   width: 100%;
-   max-width: 27rem; /* same size as before on wider screens, narrower on small phones */
-   min-height: 24rem; /* grows taller if the content needs it, e.g. a long place name */
+  border-radius: 1.875rem;
+  color: rgb(91, 91, 91);
+  margin-top: 2rem;
+  padding: 1rem;
+  display: flex;
+  position: relative;
+  text-align: center;
+  justify-content: center;
+  align-items: stretch;
+  width: 100%;
+  max-width: 27rem; /* same size as before on wider screens, narrower on small phones */
+  min-height: 24rem; /* grows taller if the content needs it, e.g. a long place name */
 }
 
 /* The card's contents as a column. Messages (e.g. errors) sit centred.
    When the card is taller than its contents, the weather stats' auto margins share the spare space equally above and below them,
    so the date stays at the top and the stats sit evenly in the space left */
 #weatherInfo {
-   width: 100%;
-   display: flex;
-   flex-direction: column;
-   justify-content: center;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 /* Date on the left, time on the right, as a normal row so it always keeps its gap above the heading */
 .card-top {
-   display: flex;
-   justify-content: space-between;
-   padding: 0 0.625rem;
-   margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 0.625rem;
+  margin-bottom: 1rem;
 }
 
 .weather-info-container h2 {
-   font-size: 1rem;
-   margin-top: 0;
-   margin-bottom: 0rem;
+  font-size: 1rem;
+  margin-top: 0;
+  margin-bottom: 0rem;
 }
 
 /* Main weather icon, sized to take up the same space as the old 7rem image */
 #weather-icon {
-   display: block;
-   font-size: 4.5rem;
-   height: 7rem;
-   line-height: 7rem;
-   color: rgb(79, 160, 134);
+  display: block;
+  font-size: 4.5rem;
+  height: 7rem;
+  line-height: 7rem;
+  color: rgb(79, 160, 134);
 }
 
 .weather-info-container div#temp {
-   font-size: 1.5rem;
-   font-weight: bold;
-   margin-top: 0.5em;
-   margin-bottom: 0.1em;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-top: 0.5em;
+  margin-bottom: 0.1em;
 }
 
 #feels-like {
-   font-size: 0.85rem;
+  font-size: 0.85rem;
 }
 
 /* Humidity, wind and precipitation side by side, sharing the card's width equally */
 .weather-stats {
-   display: flex;
-   margin: auto 0;
-   padding-top: 1rem;
+  display: flex;
+  margin: auto 0;
+  padding-top: 1rem;
 }
 
 .weather-block {
-   flex: 1;
-   min-width: 0;
+  flex: 1;
+  min-width: 0;
 }
 
 .weather-block span.fa-solid {
-   display: block;
-   font-size: 1.5rem;
-   margin-bottom: 0.5rem;
-   color: rgb(79, 160, 134);
+  display: block;
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: rgb(79, 160, 134);
 }
 
 .weather-block p {
-   font-weight: bolder;
+  font-weight: bolder;
 }
 
 /* Forecast card (next 24 hours and next 7 days): same width and shape as the weather card */
 .forecast-card {
-   width: 100%;
-   max-width: 27rem;
-   margin-top: 1rem;
-   padding: 1rem 1.25rem;
-   border-radius: 1.875rem;
-   color: rgb(91, 91, 91);
+  width: 100%;
+  max-width: 27rem;
+  margin-top: 1rem;
+  padding: 1rem 1.25rem;
+  border-radius: 1.875rem;
+  color: rgb(91, 91, 91);
 }
 
 .forecast-card h3 {
-   font-size: 1rem;
-   margin: 0 0 0.25rem;
+  font-size: 1rem;
+  margin: 0 0 0.25rem;
 }
 
 /* Next 24 hours: the hours side by side in one row, which scrolls sideways.
    A thin scrollbar under it shows there is more to see (phones only show one while scrolling). */
 .hourly-strip {
-   list-style: none;
-   margin: 0 0 0.75rem;
-   padding: 0 0 0.5rem;
-   display: flex;
-   overflow-x: auto;
-   scrollbar-width: thin;
-   scrollbar-color: rgb(91, 91, 91) transparent; /* same grey as the card's headings, on a see-through track */
+  list-style: none;
+  margin: 0 0 0.75rem;
+  padding: 0 0 0.5rem;
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(91, 91, 91) transparent; /* same grey as the card's headings, on a see-through track */
 }
 
 /* One hour: time, icon, temperature and chance of rain stacked in a small column.
    Each hour is a fixed share of the strip's width, so the last one on screen is always cut in half, hinting that the strip scrolls. */
 .hour {
-   flex: 0 0 calc(100% / 5.5); /* five and a half hours show */
-   display: flex;
-   flex-direction: column;
-   align-items: center;
-   gap: 0.35rem;
-   padding: 0.5rem 0.25rem;
-   font-size: 0.85rem;
+  flex: 0 0 calc(100% / 5.5); /* five and a half hours show */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0.25rem;
+  font-size: 0.85rem;
 }
 
 /* Room for one more hour once the strip is wide enough */
 @media (min-width: 26rem) {
-   .hour {
-      flex-basis: calc(100% / 6.5);
-   }
+  .hour {
+    flex-basis: calc(100% / 6.5);
+  }
 }
 
 .hour-icon {
-   font-size: 1.25rem;
-   color: rgb(79, 160, 134);
+  font-size: 1.25rem;
+  color: rgb(79, 160, 134);
 }
 
 .hour-temp {
-   font-weight: bold;
+  font-weight: bold;
 }
 
 .hour-rain {
-   font-size: 0.75rem;
-   color: #3a7fb5;
+  font-size: 0.75rem;
+  color: #3a7fb5;
 }
 
 .forecast-days {
-   list-style: none;
-   margin: 0;
-   padding: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 /* One row per day, in four columns: day name, icon, chance of rain, low / high */
 .forecast-day {
-   display: grid;
-   grid-template-columns: 3.5rem 2rem 1fr auto;
-   align-items: center;
-   gap: 0.5rem;
-   padding: 0.5rem 0.25rem;
-   border-top: 1px solid rgba(0, 0, 0, 0.08);
-   text-align: left;
+  display: grid;
+  grid-template-columns: 3.5rem 2rem 1fr auto;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.25rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  text-align: left;
 }
 
 .forecast-day:first-child {
-   border-top: none;
+  border-top: none;
 }
 
 .forecast-name {
-   font-weight: bold;
+  font-weight: bold;
 }
 
 .forecast-icon {
-   font-size: 1.25rem;
-   text-align: center;
-   color: rgb(79, 160, 134);
+  font-size: 1.25rem;
+  text-align: center;
+  color: rgb(79, 160, 134);
 }
 
 .forecast-rain {
-   font-size: 0.85rem;
-   color: #3a7fb5;
+  font-size: 0.85rem;
+  color: #3a7fb5;
 }
 
 .forecast-temps {
-   white-space: nowrap;
+  white-space: nowrap;
 }
 
 .forecast-low {
-   color: rgb(150, 150, 150);
+  color: rgb(150, 150, 150);
 }
 
 .forecast-high {
-   font-weight: bold;
+  font-weight: bold;
 }
 
 /* Very small phones: less padding at the edges, smaller stat labels so "Precipitation" fits in its column, and fewer hours showing so each is wide enough */
 @media (max-width: 360px) {
-   .hour {
-      flex-basis: calc(100% / 4.5);
-   }
+  .hour {
+    flex-basis: calc(100% / 4.5);
+  }
 
-   body {
-      padding: 0 0.5rem;
-   }
+  body {
+    padding: 0 0.5rem;
+  }
 
-   .weather-info-container {
-      padding: 1rem 0.5rem;
-   }
+  .weather-info-container {
+    padding: 1rem 0.5rem;
+  }
 
-   .weather-block p {
-      font-size: 0.8rem;
-   }
+  .weather-block p {
+    font-size: 0.8rem;
+  }
 }
 
 /* Wide screens: weather and forecast cards side by side, as a two-column grid.
    Heading, search area and footer span both columns. The last row takes any spare height, keeping the footer at the bottom. */
 @media (min-width: 60rem) {
-   body {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 27rem));
-      grid-template-rows: auto auto auto 1fr;
-      justify-content: center;
-      align-items: stretch; /* in a grid this is vertical: cards in the same row get the same height (the phone layout uses "center" for horizontal centring) */
-      column-gap: 1.5rem;
-   }
+  body {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 27rem));
+    grid-template-rows: auto auto auto 1fr;
+    justify-content: center;
+    align-items: stretch; /* in a grid this is vertical: cards in the same row get the same height (the phone layout uses "center" for horizontal centring) */
+    column-gap: 1.5rem;
+  }
 
-   h1, .search-bar-container, .spinner, .attribution {
-      grid-column: 1 / -1; /* span both columns */
-      justify-self: center;
-   }
+  h1,
+  .search-bar-container,
+  .spinner,
+  .attribution {
+    grid-column: 1 / -1; /* span both columns */
+    justify-self: center;
+  }
 
-   .attribution {
-      grid-row: 4; /* always the last row, even before the cards exist */
-      align-self: end;
-      margin-top: 0;
-   }
+  .attribution {
+    grid-row: 4; /* always the last row, even before the cards exist */
+    align-self: end;
+    margin-top: 0;
+  }
 
-   .weather-info-container, .forecast-card {
-      margin-top: 2rem; /* both cards start at the same height, and stretch to match the taller one */
-   }
+  .weather-info-container,
+  .forecast-card {
+    margin-top: 2rem; /* both cards start at the same height, and stretch to match the taller one */
+  }
 
-   /* While loading, the spare height goes to the spinner's row instead of the footer's, so the spinner can sit in the middle of it */
-   body:has(.spinner) {
-      grid-template-rows: auto auto 1fr auto;
-   }
+  /* While loading, the spare height goes to the spinner's row instead of the footer's, so the spinner can sit in the middle of it */
+  body:has(.spinner) {
+    grid-template-rows: auto auto 1fr auto;
+  }
 
-   /* After a failed search there is no forecast card: keep the weather card centred instead of in the left column */
-   body:not(:has(.forecast-card)) .weather-info-container {
-      grid-column: 1 / -1;
-      justify-self: center;
-   }
+  /* After a failed search there is no forecast card: keep the weather card centred instead of in the left column */
+  body:not(:has(.forecast-card)) .weather-info-container {
+    grid-column: 1 / -1;
+    justify-self: center;
+  }
 }
