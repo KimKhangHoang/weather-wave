@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+    <!-- WeatherWave logo: two Ws drawn as one rounded wave, in white on a blue tile -->
+    <defs>
+        <linearGradient id="tile" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#2ea3e6" />
+            <stop offset="1" stop-color="#0062cc" />
+        </linearGradient>
+    </defs>
+    <rect x="1" y="1" width="62" height="62" rx="14" fill="url(#tile)" stroke="#fff" stroke-opacity="0.7" stroke-width="2" />
+    <path
+        d="M8 24 C11.58 24 10.93 40 14.5 40 C18.08 40 17.43 30 21 30 C24.03 30 23.48 40 26.5 40 C29.53 40 28.98 26 32 26 C35.03 26 34.48 40 37.5 40 C40.53 40 39.98 30 43 30 C46.58 30 45.93 40 49.5 40 C53.08 40 52.43 24 56 24"
+        fill="none"
+        stroke="#fff"
+        stroke-width="5.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+    />
+</svg>
