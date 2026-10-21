@@ -17,16 +17,78 @@ html {
     box-sizing: border-box;
 }
 
+/* Sky scenes for the background. Each one sets:
+   --sky: the background gradient
+   --on-sky: the colour of text sitting straight on the sky (heading and footer)
+   --on-sky-shadow: a soft shadow behind that text, so light text stays readable
+   script.js picks the scene by setting data-sky on the body. Clear day is the default. */
+:root {
+    /* blue fading to a soft peach near the horizon */
+    --sky: linear-gradient(180deg, #1e9be0 0%, #7cc3ee 45%, #dcedf8 78%, #f5d6cb 100%);
+    --on-sky: black;
+    --on-sky-shadow: none;
+}
+
+body[data-sky="clear-night"] {
+    /* deep navy, slightly lighter near the horizon */
+    --sky: linear-gradient(180deg, #0b1630 0%, #1b2d55 55%, #3a4a78 100%);
+}
+
+body[data-sky="cloudy-day"] {
+    --sky: linear-gradient(180deg, #7f97ad 0%, #a9bccb 50%, #d8e0e7 100%);
+}
+
+body[data-sky="cloudy-night"] {
+    --sky: linear-gradient(180deg, #1c2330 0%, #2d3646 55%, #475163 100%);
+}
+
+body[data-sky="fog-day"] {
+    --sky: linear-gradient(180deg, #b9c1c8 0%, #d6dbdf 50%, #eceeef 100%);
+}
+
+body[data-sky="fog-night"] {
+    --sky: linear-gradient(180deg, #2a2f38 0%, #3d434d 55%, #575e69 100%);
+}
+
+body[data-sky="rain-day"] {
+    --sky: linear-gradient(180deg, #4f6577 0%, #71889a 50%, #9fb0bd 100%);
+}
+
+body[data-sky="rain-night"] {
+    --sky: linear-gradient(180deg, #101a26 0%, #1e2c3c 55%, #34465a 100%);
+}
+
+body[data-sky="snow-day"] {
+    --sky: linear-gradient(180deg, #a9c7de 0%, #d3e3ef 55%, #f6f9fc 100%);
+}
+
+body[data-sky="snow-night"] {
+    --sky: linear-gradient(180deg, #1d2a40 0%, #34476a 55%, #6a7fa3 100%);
+}
+
+body[data-sky="storm-day"] {
+    --sky: linear-gradient(180deg, #2d3440 0%, #46505e 50%, #6b6f7c 100%);
+}
+
+body[data-sky="storm-night"] {
+    --sky: linear-gradient(180deg, #0c0d14 0%, #1d1f2e 55%, #34344a 100%);
+}
+
+/* Dark skies (every night sky, plus rain and storm by day) get white text */
+body[data-sky$="-night"],
+body[data-sky="rain-day"],
+body[data-sky="storm-day"] {
+    --on-sky: white;
+    --on-sky-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
 /* Stack everything in a centred column, with a small gap at the screen edges on narrow phones */
 body {
     font-family: Verdana, Tahoma, Arial, sans-serif;
     text-align: center;
-    background-color: #f0f0f0;
-    background-image: url("images/background.jpg");
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
+    background-color: #7cc3ee; /* plain sky blue, in case the gradient can't be shown */
+    background-image: var(--sky);
+    background-attachment: fixed; /* the sky stays still while the page scrolls */
     margin: 0;
     padding: 0 1rem;
     min-height: 100vh; /* fallback for older browsers */
@@ -38,6 +100,13 @@ body {
 
 h1 {
     margin-top: 2rem;
+}
+
+/* Heading and footer sit straight on the sky, so they take the scene's text colour */
+h1,
+.attribution {
+    color: var(--on-sky);
+    text-shadow: var(--on-sky-shadow);
 }
 
 .search-bar-container {

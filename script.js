@@ -72,6 +72,15 @@ requestAnimationFrame(function () {
     });
 });
 
+// Change the background sky. The scene names match the data-sky styles in style.css, e.g. "clear-day" or "rain-night"
+function setSky(scene) {
+    document.body.dataset.sky = scene;
+}
+
+// Until a place is searched, the visitor's own clock picks a day or night sky (daytime counted as 6am to 6pm)
+const hourNow = new Date().getHours();
+setSky(hourNow >= 6 && hourNow < 18 ? "clear-day" : "clear-night");
+
 // Run a search for the typed place, unless nothing (or only spaces) has been typed
 function search() {
     const location = document.getElementById("location").value.trim(); // the entered location (API handles case sensitivity)
@@ -263,52 +272,37 @@ async function geocodeLocation(name) {
 }
 
 // Open-Meteo describes the sky with a number (a WMO weather code) instead of text and an icon.
-// This table turns each code into a description and a Font Awesome icon. A nightIcon is only given where night looks different (e.g. moon instead of sun).
+// This table turns each code into a description, a Font Awesome icon and a background sky (clear, cloudy, fog, rain, snow or storm).
+// A nightIcon is only given where night looks different (e.g. moon instead of sun).
 const weatherCodes = {
-    0: { description: "clear sky", icon: "fa-sun", nightIcon: "fa-moon" },
-    1: {
-        description: "mainly clear",
-        icon: "fa-cloud-sun",
-        nightIcon: "fa-cloud-moon",
-    },
-    2: {
-        description: "partly cloudy",
-        icon: "fa-cloud-sun",
-        nightIcon: "fa-cloud-moon",
-    },
-    3: { description: "overcast clouds", icon: "fa-cloud" },
-    45: { description: "fog", icon: "fa-smog" },
-    48: { description: "freezing fog", icon: "fa-smog" },
-    51: { description: "light drizzle", icon: "fa-cloud-rain" },
-    53: { description: "drizzle", icon: "fa-cloud-rain" },
-    55: { description: "heavy drizzle", icon: "fa-cloud-rain" },
-    56: { description: "light freezing drizzle", icon: "fa-cloud-rain" },
-    57: { description: "freezing drizzle", icon: "fa-cloud-rain" },
-    61: { description: "light rain", icon: "fa-cloud-rain" },
-    63: { description: "moderate rain", icon: "fa-cloud-rain" },
-    65: { description: "heavy rain", icon: "fa-cloud-showers-heavy" },
-    66: { description: "light freezing rain", icon: "fa-snowflake" },
-    67: { description: "freezing rain", icon: "fa-snowflake" },
-    71: { description: "light snow", icon: "fa-snowflake" },
-    73: { description: "snow", icon: "fa-snowflake" },
-    75: { description: "heavy snow", icon: "fa-snowflake" },
-    77: { description: "snow grains", icon: "fa-snowflake" },
-    80: {
-        description: "light rain showers",
-        icon: "fa-cloud-sun-rain",
-        nightIcon: "fa-cloud-moon-rain",
-    },
-    81: {
-        description: "rain showers",
-        icon: "fa-cloud-sun-rain",
-        nightIcon: "fa-cloud-moon-rain",
-    },
-    82: { description: "heavy rain showers", icon: "fa-cloud-showers-heavy" },
-    85: { description: "light snow showers", icon: "fa-snowflake" },
-    86: { description: "heavy snow showers", icon: "fa-snowflake" },
-    95: { description: "thunderstorm", icon: "fa-cloud-bolt" },
-    96: { description: "thunderstorm with hail", icon: "fa-cloud-bolt" },
-    99: { description: "thunderstorm with heavy hail", icon: "fa-cloud-bolt" },
+    0: { description: "clear sky", icon: "fa-sun", nightIcon: "fa-moon", sky: "clear" },
+    1: { description: "mainly clear", icon: "fa-cloud-sun", nightIcon: "fa-cloud-moon", sky: "clear" },
+    2: { description: "partly cloudy", icon: "fa-cloud-sun", nightIcon: "fa-cloud-moon", sky: "cloudy" },
+    3: { description: "overcast clouds", icon: "fa-cloud", sky: "cloudy" },
+    45: { description: "fog", icon: "fa-smog", sky: "fog" },
+    48: { description: "freezing fog", icon: "fa-smog", sky: "fog" },
+    51: { description: "light drizzle", icon: "fa-cloud-rain", sky: "rain" },
+    53: { description: "drizzle", icon: "fa-cloud-rain", sky: "rain" },
+    55: { description: "heavy drizzle", icon: "fa-cloud-rain", sky: "rain" },
+    56: { description: "light freezing drizzle", icon: "fa-cloud-rain", sky: "rain" },
+    57: { description: "freezing drizzle", icon: "fa-cloud-rain", sky: "rain" },
+    61: { description: "light rain", icon: "fa-cloud-rain", sky: "rain" },
+    63: { description: "moderate rain", icon: "fa-cloud-rain", sky: "rain" },
+    65: { description: "heavy rain", icon: "fa-cloud-showers-heavy", sky: "rain" },
+    66: { description: "light freezing rain", icon: "fa-snowflake", sky: "rain" },
+    67: { description: "freezing rain", icon: "fa-snowflake", sky: "rain" },
+    71: { description: "light snow", icon: "fa-snowflake", sky: "snow" },
+    73: { description: "snow", icon: "fa-snowflake", sky: "snow" },
+    75: { description: "heavy snow", icon: "fa-snowflake", sky: "snow" },
+    77: { description: "snow grains", icon: "fa-snowflake", sky: "snow" },
+    80: { description: "light rain showers", icon: "fa-cloud-sun-rain", nightIcon: "fa-cloud-moon-rain", sky: "rain" },
+    81: { description: "rain showers", icon: "fa-cloud-sun-rain", nightIcon: "fa-cloud-moon-rain", sky: "rain" },
+    82: { description: "heavy rain showers", icon: "fa-cloud-showers-heavy", sky: "rain" },
+    85: { description: "light snow showers", icon: "fa-snowflake", sky: "snow" },
+    86: { description: "heavy snow showers", icon: "fa-snowflake", sky: "snow" },
+    95: { description: "thunderstorm", icon: "fa-cloud-bolt", sky: "storm" },
+    96: { description: "thunderstorm with hail", icon: "fa-cloud-bolt", sky: "storm" },
+    99: { description: "thunderstorm with heavy hail", icon: "fa-cloud-bolt", sky: "storm" },
 };
 
 // Show the weather card and forecast card for a place, with a spinner while waiting.
@@ -319,10 +313,12 @@ async function showWeather(findPlace) {
     const spinner = displaySpinner(); // this search's own spinner, so a newer search can't mix up results
 
     let cardsHTML;
+    let sky; // stays empty after a failed search, so the background doesn't change
     try {
         const place = await findPlace();
         const dataWeather = await fetchWeatherAt(place.latitude, place.longitude);
         cardsHTML = weatherContainerHTML(weatherCardHTML(place.name, dataWeather)) + forecastCardHTML(dataWeather);
+        sky = skyFor(dataWeather.current);
     } catch (error) {
         cardsHTML = weatherContainerHTML(error.message);
     }
@@ -332,6 +328,15 @@ async function showWeather(findPlace) {
     }
     spinner.insertAdjacentHTML("afterend", cardsHTML); // the cards take the spinner's place
     spinner.remove();
+    if (sky) {
+        setSky(sky);
+    }
+}
+
+// The sky scene for the current weather at a place, e.g. "rain-night".
+// The place's own day or night flag is used, rather than the visitor's clock.
+function skyFor(current) {
+    return `${conditionFor(current.weather_code).sky}-${current.is_day ? "day" : "night"}`;
 }
 
 // Ask Open-Meteo for the current weather, the hour-by-hour forecast and the 7-day forecast at a point, in one request.
@@ -411,9 +416,9 @@ function weatherCardHTML(placeName, dataWeather) {
       `;
 }
 
-// Look up a weather code's description and icon, with a fallback for any code not in the table
+// Look up a weather code's description, icon and sky, with a fallback for any code not in the table
 function conditionFor(code) {
-    return weatherCodes[code] || { description: "unknown", icon: "fa-cloud" };
+    return weatherCodes[code] || { description: "unknown", icon: "fa-cloud", sky: "cloudy" };
 }
 
 // Build the forecast card: the next 24 hours at the top, then one row per day with its icon, chance of rain, and low / high temperature.
