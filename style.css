@@ -19,12 +19,14 @@ html {
 
 /* Sky scenes for the background. Each one sets:
    --sky: the background gradient
+   --sky-top: the plain colour at the top of that gradient. Phone browsers (e.g. Safari on iPhone) paint the strips behind the clock and the bottom toolbar in the page's plain background colour, so this keeps them matching the sky
    --on-sky: the colour of text sitting straight on the sky (heading and footer)
    --on-sky-shadow: a soft shadow behind that text, so light text stays readable
    script.js picks the scene by setting data-sky on the body. Clear day is the default. */
 :root {
     /* blue fading to a soft peach near the horizon */
     --sky: linear-gradient(180deg, #1e9be0 0%, #7cc3ee 45%, #dcedf8 78%, #f5d6cb 100%);
+    --sky-top: #1e9be0;
     --on-sky: black;
     --on-sky-shadow: none;
 }
@@ -32,46 +34,57 @@ html {
 body[data-sky="clear-night"] {
     /* deep navy, slightly lighter near the horizon */
     --sky: linear-gradient(180deg, #0b1630 0%, #1b2d55 55%, #3a4a78 100%);
+    --sky-top: #0b1630;
 }
 
 body[data-sky="cloudy-day"] {
     --sky: linear-gradient(180deg, #7f97ad 0%, #a9bccb 50%, #d8e0e7 100%);
+    --sky-top: #7f97ad;
 }
 
 body[data-sky="cloudy-night"] {
     --sky: linear-gradient(180deg, #1c2330 0%, #2d3646 55%, #475163 100%);
+    --sky-top: #1c2330;
 }
 
 body[data-sky="fog-day"] {
     --sky: linear-gradient(180deg, #b9c1c8 0%, #d6dbdf 50%, #eceeef 100%);
+    --sky-top: #b9c1c8;
 }
 
 body[data-sky="fog-night"] {
     --sky: linear-gradient(180deg, #2a2f38 0%, #3d434d 55%, #575e69 100%);
+    --sky-top: #2a2f38;
 }
 
 body[data-sky="rain-day"] {
     --sky: linear-gradient(180deg, #4f6577 0%, #71889a 50%, #9fb0bd 100%);
+    --sky-top: #4f6577;
 }
 
 body[data-sky="rain-night"] {
     --sky: linear-gradient(180deg, #101a26 0%, #1e2c3c 55%, #34465a 100%);
+    --sky-top: #101a26;
 }
 
 body[data-sky="snow-day"] {
     --sky: linear-gradient(180deg, #a9c7de 0%, #d3e3ef 55%, #f6f9fc 100%);
+    --sky-top: #a9c7de;
 }
 
 body[data-sky="snow-night"] {
     --sky: linear-gradient(180deg, #1d2a40 0%, #34476a 55%, #6a7fa3 100%);
+    --sky-top: #1d2a40;
 }
 
 body[data-sky="storm-day"] {
     --sky: linear-gradient(180deg, #2d3440 0%, #46505e 50%, #6b6f7c 100%);
+    --sky-top: #2d3440;
 }
 
 body[data-sky="storm-night"] {
     --sky: linear-gradient(180deg, #0c0d14 0%, #1d1f2e 55%, #34344a 100%);
+    --sky-top: #0c0d14;
 }
 
 /* Dark skies (every night sky, plus rain and storm by day) get white text */
@@ -86,7 +99,7 @@ body[data-sky="storm-day"] {
 body {
     font-family: Verdana, Tahoma, Arial, sans-serif;
     text-align: center;
-    background-color: #7cc3ee; /* plain sky blue, in case the gradient can't be shown */
+    background-color: var(--sky-top); /* also shows if the gradient can't be drawn */
     background-image: var(--sky);
     background-attachment: fixed; /* the sky stays still while the page scrolls */
     margin: 0;
