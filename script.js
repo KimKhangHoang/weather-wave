@@ -73,8 +73,17 @@ requestAnimationFrame(function () {
 });
 
 // Change the background sky. The scene names match the data-sky styles in style.css, e.g. "clear-day" or "rain-night"
+// When one sky replaces a different one, it fades in: a copy of the old sky is laid on top and faded out (see "Sky fade" in style.css).
+// The very first sky, set when the page opens, appears straight away.
 function setSky(scene) {
-    document.body.dataset.sky = scene;
+    const body = document.body;
+    if (body.dataset.sky && body.dataset.sky !== scene) {
+        body.style.setProperty("--old-sky", getComputedStyle(body).getPropertyValue("--sky"));
+        body.classList.remove("sky-fading");
+        void body.offsetWidth; // lets the browser notice the class was removed, so the fade restarts if the sky changes again mid-fade
+        body.classList.add("sky-fading");
+    }
+    body.dataset.sky = scene;
 }
 
 // Until a place is searched, the visitor's own clock picks a day or night sky (daytime counted as 6am to 6pm)
