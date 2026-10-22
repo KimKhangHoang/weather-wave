@@ -100,8 +100,6 @@ body {
     font-family: Verdana, Tahoma, Arial, sans-serif;
     text-align: center;
     background-color: var(--sky-top); /* also shows if the gradient can't be drawn */
-    background-image: var(--sky);
-    background-attachment: fixed; /* the sky stays still while the page scrolls */
     margin: 0;
     padding: 0 1rem;
     min-height: 100vh; /* fallback for older browsers */
@@ -109,6 +107,21 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+/* The sky, as its own layer pinned to the screen behind everything, so it stays still while the page scrolls.
+   (iPhones ignore the simpler "background-attachment: fixed" and would stretch the sky over the whole page instead.)
+   It is the height of the screen with the browser's bars hidden, so no gap shows when they slide away. */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh; /* fallback for older browsers */
+    height: 100lvh;
+    z-index: -1;
+    background-image: var(--sky);
 }
 
 /* The name with the logo beside it, centred together */
