@@ -124,6 +124,55 @@ body::before {
     background-image: var(--sky);
 }
 
+/* Sky fade. Gradients can't blend into each other directly.
+   So when the sky changes (script.js adds "sky-fading"), a copy of the old sky is laid over the new one and faded out, while the text and plain background colours blend across */
+body.sky-fading::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh; /* fallback for older browsers */
+    height: 100lvh;
+    z-index: -1; /* same level as the new sky, but drawn after it, so it sits on top */
+    background-image: var(--old-sky);
+    pointer-events: none;
+    animation: sky-fade-out 1s ease forwards;
+}
+
+@keyframes sky-fade-out {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+body.sky-fading {
+    transition: background-color 1s ease;
+}
+
+body.sky-fading h1,
+body.sky-fading .attribution {
+    transition:
+        color 1s ease,
+        text-shadow 1s ease;
+}
+
+/* Respect the "reduce motion" accessibility setting: the sky just switches */
+@media (prefers-reduced-motion: reduce) {
+    body.sky-fading::after {
+        display: none;
+    }
+
+    body.sky-fading,
+    body.sky-fading h1,
+    body.sky-fading .attribution {
+        transition: none;
+    }
+}
+
 /* The name with the logo beside it, centred together */
 h1 {
     margin-top: 2rem;
