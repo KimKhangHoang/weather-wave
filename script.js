@@ -249,17 +249,12 @@ document.getElementById("searchWeather").addEventListener("click", search);
 // Use my location on click
 document.getElementById("useLocation").addEventListener("click", searchMyLocation);
 
-// Search on enter
-document.getElementById("location").addEventListener("keydown", function (event) {
-    if (event.key === "Enter") {
-        search();
-    }
-});
-
 // Suggestions: while typing, matching places are listed under the search box to pick from
 const locationInput = document.getElementById("location");
 const suggestionList = document.getElementById("suggestions");
+const suggestionStatus = document.getElementById("suggestionStatus");
 let suggestedPlaces = []; // the places currently listed
+let activeIndex = -1; // the place highlighted with the arrow keys (-1 for none)
 let pickedPlace = null; // the suggestion picked, until the box is edited again
 let suggestionTimer; // waits for a pause in typing before looking places up
 let latestLookup = 0; // numbers each lookup, so a slow older answer can't replace a newer one
@@ -270,6 +265,7 @@ locationInput.addEventListener("input", function () {
     const text = locationInput.value.trim();
     if (text.length < 2) {
         closeSuggestions();
+        suggestedPlaces = [];
         return;
     }
     suggestionTimer = setTimeout(async function () {
@@ -294,6 +290,9 @@ function showSuggestions(places) {
         const item = document.createElement("li");
         item.className = "suggestion";
         item.dataset.index = i;
+        item.id = "suggestion-" + i; // lets the search box point screen readers at the highlighted place
+        item.setAttribute("role", "option");
+        item.setAttribute("aria-selected", "false");
         const name = document.createElement("span");
         name.className = "suggestion-name";
         name.textContent = place.name;
@@ -303,7 +302,23 @@ function showSuggestions(places) {
         item.append(name, " ", area);
         suggestionList.append(item);
     });
-    suggestionList.hidden = places.length === 0;
+    suggestionStatus.textContent =
+        places.length === 0
+            ? "No matching places"
+            : `${places.length} ${places.length === 1 ? "place" : "places"} found`;
+    if (places.length > 0) {
+        openSuggestions();
+    } else {
+        suggestionList.hidden = true;
+        locationInput.setAttribute("aria-expanded", "false");
+    }
+}
+
+// Show the list with nothing highlighted yet
+function openSuggestions() {
+    suggestionList.hidden = false;
+    locationInput.setAttribute("aria-expanded", "true");
+    setActive(-1);
 }
 
 // Hide the list, and stop any lookup still waiting or on its way
@@ -311,7 +326,52 @@ function closeSuggestions() {
     clearTimeout(suggestionTimer);
     latestLookup++;
     suggestionList.hidden = true;
+    locationInput.setAttribute("aria-expanded", "false");
+    setActive(-1);
 }
+
+// Highlight one place in the list (-1 for none), and tell screen readers which one it is
+function setActive(index) {
+    activeIndex = index;
+    [...suggestionList.children].forEach(function (item, i) {
+        item.setAttribute("aria-selected", i === index);
+    });
+    if (index >= 0) {
+        locationInput.setAttribute("aria-activedescendant", "suggestion-" + index);
+    } else {
+        locationInput.removeAttribute("aria-activedescendant");
+    }
+}
+
+// Keyboard: arrows move through the list, Enter picks the highlighted place (or searches as usual), Escape closes the list
+locationInput.addEventListener("keydown", function (event) {
+    const open = !suggestionList.hidden;
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+        if (suggestedPlaces.length === 0) {
+            return;
+        }
+        event.preventDefault(); // stop the cursor jumping to the start or end of the text
+        if (!open) {
+            openSuggestions();
+        }
+        // Step through the list and wrap around, passing through "nothing highlighted" between the last and first place
+        let next = activeIndex + (event.key === "ArrowDown" ? 1 : -1);
+        if (next >= suggestedPlaces.length) {
+            next = -1;
+        } else if (next < -1) {
+            next = suggestedPlaces.length - 1;
+        }
+        setActive(next);
+    } else if (event.key === "Enter") {
+        if (open && activeIndex >= 0) {
+            chooseSuggestion(suggestedPlaces[activeIndex]);
+        } else {
+            search();
+        }
+    } else if (event.key === "Escape" && open) {
+        closeSuggestions();
+    }
+});
 
 // Show the weather for a picked place, using its exact position
 function chooseSuggestion(place) {
