@@ -103,14 +103,17 @@ setInterval(function () {
 }, 60000);
 
 // Run a search for the typed place, unless nothing (or only spaces) has been typed
+// If a suggestion was picked (and the box not edited since), that exact place is used instead of looking the name up again
 function search() {
     const location = document.getElementById("location").value.trim(); // the entered location (API handles case sensitivity)
     if (location === "") {
         return;
     }
+    const picked = pickedPlace;
+    closeSuggestions();
     countEvent("search");
     showWeather(async function () {
-        const place = await geocodeLocation(location);
+        const place = picked || (await geocodeLocation(location));
         return {
             latitude: place.latitude,
             longitude: place.longitude,
@@ -138,6 +141,8 @@ function placeLabel(name, country) {
 function searchMyLocation() {
     countEvent("use-my-location");
     document.getElementById("location").value = ""; // clear any earlier typed place, so the box doesn't contradict the card
+    pickedPlace = null;
+    closeSuggestions();
     showWeather(async function () {
         const position = await getDevicePosition();
         const latitude = position.coords.latitude;
@@ -248,6 +253,88 @@ document.getElementById("useLocation").addEventListener("click", searchMyLocatio
 document.getElementById("location").addEventListener("keydown", function (event) {
     if (event.key === "Enter") {
         search();
+    }
+});
+
+// Suggestions: while typing, matching places are listed under the search box to pick from
+const locationInput = document.getElementById("location");
+const suggestionList = document.getElementById("suggestions");
+let suggestedPlaces = []; // the places currently listed
+let pickedPlace = null; // the suggestion picked, until the box is edited again
+let suggestionTimer; // waits for a pause in typing before looking places up
+let latestLookup = 0; // numbers each lookup, so a slow older answer can't replace a newer one
+
+locationInput.addEventListener("input", function () {
+    pickedPlace = null; // the text no longer matches the picked place
+    clearTimeout(suggestionTimer);
+    const text = locationInput.value.trim();
+    if (text.length < 2) {
+        closeSuggestions();
+        return;
+    }
+    suggestionTimer = setTimeout(async function () {
+        const lookup = ++latestLookup;
+        let places;
+        try {
+            places = await findPlaces(text, 5);
+        } catch (error) {
+            places = []; // no list if the lookup fails, searching still works as usual
+        }
+        if (lookup === latestLookup) {
+            showSuggestions(places);
+        }
+    }, 300);
+});
+
+// List the places under the search box. Names are added as plain text, so nothing in them can be treated as HTML
+function showSuggestions(places) {
+    suggestedPlaces = places;
+    suggestionList.replaceChildren();
+    places.forEach(function (place, i) {
+        const item = document.createElement("li");
+        item.className = "suggestion";
+        item.dataset.index = i;
+        const name = document.createElement("span");
+        name.className = "suggestion-name";
+        name.textContent = place.name;
+        const area = document.createElement("span");
+        area.className = "suggestion-area";
+        area.textContent = [place.admin1, place.country].filter((part) => part && part !== place.name).join(", "); // e.g. "Illinois, United States"
+        item.append(name, " ", area);
+        suggestionList.append(item);
+    });
+    suggestionList.hidden = places.length === 0;
+}
+
+// Hide the list, and stop any lookup still waiting or on its way
+function closeSuggestions() {
+    clearTimeout(suggestionTimer);
+    latestLookup++;
+    suggestionList.hidden = true;
+}
+
+// Show the weather for a picked place, using its exact position
+function chooseSuggestion(place) {
+    locationInput.value = place.name;
+    pickedPlace = place;
+    search();
+}
+
+// Keep the cursor in the search box while tapping the list, then pick the tapped place
+suggestionList.addEventListener("pointerdown", function (event) {
+    event.preventDefault();
+});
+suggestionList.addEventListener("click", function (event) {
+    const item = event.target.closest(".suggestion");
+    if (item) {
+        chooseSuggestion(suggestedPlaces[item.dataset.index]);
+    }
+});
+
+// Tapping anywhere outside the search box closes the list
+document.addEventListener("click", function (event) {
+    if (!event.target.closest(".weather-search")) {
+        closeSuggestions();
     }
 });
 
