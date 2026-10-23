@@ -282,6 +282,7 @@ h1,
 }
 
 .suggestion-area {
+    display: inline-block; /* if it doesn't fit beside a long name, the whole "Illinois, United States" moves to the next line together */
     font-size: 0.85rem;
     color: rgb(110, 110, 110);
 }
