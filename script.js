@@ -117,7 +117,7 @@ function search() {
         return {
             latitude: place.latitude,
             longitude: place.longitude,
-            name: placeLabel(place.name, place.country),
+            name: placeLabel(place.name, place.admin1, place.country),
         };
     });
 }
@@ -131,10 +131,17 @@ function countEvent(name) {
     }
 }
 
-// Name for the card heading, e.g. "São Paulo, Brazil".
-// Just the name when there is no country, or when the place is the country itself (e.g. "Vietnam", "Singapore")
-function placeLabel(name, country) {
-    return country && country !== name ? `${name}, ${country}` : name;
+// Name for the card heading, e.g. "Springfield, Illinois, United States", so places with the same name can be told apart.
+// The region (state, province...) and country are left out when missing or when they repeat an earlier part,
+// e.g. "São Paulo, Brazil" (the state is also São Paulo) or just "Vietnam" for the country itself.
+function placeLabel(name, region, country) {
+    const parts = [name];
+    [region, country].forEach(function (part) {
+        if (part && !parts.includes(part)) {
+            parts.push(part);
+        }
+    });
+    return parts.join(", ");
 }
 
 // Run a search for the device's location, named after the town it is in (or "Your location" if that can't be found)
@@ -182,7 +189,7 @@ async function nameForPosition(latitude, longitude) {
         if (!town) {
             return "Your location";
         }
-        const name = placeLabel(town, address.country);
+        const name = placeLabel(town, null, address.country); // town and country only, matching the names already saved in visitors' browsers
         rememberPlaceName(cacheKey, name); // only real names are saved, never a failed lookup
         return name;
     } catch (error) {
