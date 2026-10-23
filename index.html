@@ -27,14 +27,27 @@
 
         <div class="search-bar-container">
             <div class="weather-search">
-                <!-- autocomplete off: the browser's own list of past entries would cover our suggestions -->
-                <input type="text" id="location" placeholder="Enter location" autocomplete="off" />
+                <!-- autocomplete off: the browser's own list of past entries would cover our suggestions.
+                     The role and aria attributes tell screen readers this box offers a list of suggestions (script.js keeps them up to date). -->
+                <input
+                    type="text"
+                    id="location"
+                    placeholder="Enter location"
+                    autocomplete="off"
+                    aria-label="Search for a place"
+                    role="combobox"
+                    aria-autocomplete="list"
+                    aria-controls="suggestions"
+                    aria-expanded="false"
+                />
                 <button type="button" id="useLocation" aria-label="Use my location" title="Use my location">
                     <span class="fa-solid fa-location-crosshairs" aria-hidden="true"></span>
                 </button>
                 <button id="searchWeather">Search</button>
                 <!-- Matching places, filled in by script.js while typing -->
-                <ul id="suggestions" class="suggestions" hidden></ul>
+                <ul id="suggestions" class="suggestions" role="listbox" aria-label="Matching places" hidden></ul>
+                <!-- Read out by screen readers when suggestions arrive, e.g. "5 places found". Not shown on screen. -->
+                <p id="suggestionStatus" class="visually-hidden" role="status"></p>
             </div>
             <button
                 type="button"
