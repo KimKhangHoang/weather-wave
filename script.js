@@ -103,18 +103,21 @@ setInterval(function () {
 }, 60000);
 
 // Run a search for the typed place, unless nothing (or only spaces) has been typed
+// If a suggestion was picked (and the box not edited since), that exact place is used instead of looking the name up again
 function search() {
     const location = document.getElementById("location").value.trim(); // the entered location (API handles case sensitivity)
     if (location === "") {
         return;
     }
+    const picked = pickedPlace;
+    closeSuggestions();
     countEvent("search");
     showWeather(async function () {
-        const place = await geocodeLocation(location);
+        const place = picked || (await geocodeLocation(location));
         return {
             latitude: place.latitude,
             longitude: place.longitude,
-            name: placeLabel(place.name, place.country),
+            name: placeLabel(place.name, place.admin1, place.country),
         };
     });
 }
@@ -128,16 +131,25 @@ function countEvent(name) {
     }
 }
 
-// Name for the card heading, e.g. "São Paulo, Brazil".
-// Just the name when there is no country, or when the place is the country itself (e.g. "Vietnam", "Singapore")
-function placeLabel(name, country) {
-    return country && country !== name ? `${name}, ${country}` : name;
+// Name for the card heading, e.g. "Springfield, Illinois, United States", so places with the same name can be told apart.
+// The region (state, province...) and country are left out when missing or when they repeat an earlier part,
+// e.g. "São Paulo, Brazil" (the state is also São Paulo) or just "Vietnam" for the country itself.
+function placeLabel(name, region, country) {
+    const parts = [name];
+    [region, country].forEach(function (part) {
+        if (part && !parts.includes(part)) {
+            parts.push(part);
+        }
+    });
+    return parts.join(", ");
 }
 
 // Run a search for the device's location, named after the town it is in (or "Your location" if that can't be found)
 function searchMyLocation() {
     countEvent("use-my-location");
     document.getElementById("location").value = ""; // clear any earlier typed place, so the box doesn't contradict the card
+    pickedPlace = null;
+    closeSuggestions();
     showWeather(async function () {
         const position = await getDevicePosition();
         const latitude = position.coords.latitude;
@@ -177,7 +189,7 @@ async function nameForPosition(latitude, longitude) {
         if (!town) {
             return "Your location";
         }
-        const name = placeLabel(town, address.country);
+        const name = placeLabel(town, null, address.country); // town and country only, matching the names already saved in visitors' browsers
         rememberPlaceName(cacheKey, name); // only real names are saved, never a failed lookup
         return name;
     } catch (error) {
@@ -244,10 +256,173 @@ document.getElementById("searchWeather").addEventListener("click", search);
 // Use my location on click
 document.getElementById("useLocation").addEventListener("click", searchMyLocation);
 
-// Search on enter
-document.getElementById("location").addEventListener("keydown", function (event) {
-    if (event.key === "Enter") {
-        search();
+// Suggestions: while typing, matching places are listed under the search box to pick from
+const locationInput = document.getElementById("location");
+const suggestionList = document.getElementById("suggestions");
+const suggestionStatus = document.getElementById("suggestionStatus");
+let suggestedPlaces = []; // the places currently listed
+let activeIndex = -1; // the place highlighted with the arrow keys (-1 for none)
+let pickedPlace = null; // the suggestion picked, until the box is edited again
+let suggestionTimer; // waits for a pause in typing before looking places up
+let latestLookup = 0; // numbers each lookup, so a slow older answer can't replace a newer one
+
+locationInput.addEventListener("input", function () {
+    pickedPlace = null; // the text no longer matches the picked place
+    clearTimeout(suggestionTimer);
+    const text = locationInput.value.trim();
+    if (text.length < 2) {
+        closeSuggestions();
+        suggestedPlaces = [];
+        return;
+    }
+    suggestionTimer = setTimeout(async function () {
+        const lookup = ++latestLookup;
+        let places;
+        try {
+            places = await findPlaces(text, 10); // more than needed, as some are left out below
+        } catch (error) {
+            places = []; // no list if the lookup fails, searching still works as usual
+        }
+        if (lookup === latestLookup) {
+            // Prefer towns and regions over landmarks like parks and airports, unless landmarks are all there is (e.g. "Mount Everest")
+            const towns = places.filter(isTownOrRegion);
+            showSuggestions(withoutRepeats(towns.length > 0 ? towns : places).slice(0, 5));
+        }
+    }, 300);
+});
+
+// Whether a place is a town or suburb, a state or region, a country or an island, going by its GeoNames feature code
+// (e.g. "PPL" a populated place, "ADM1" a state, "PCLI" a country, "ISL" an island). Places without a code are kept.
+function isTownOrRegion(place) {
+    return !place.feature_code || ["PPL", "ADM", "PCL", "ISL"].some((kind) => place.feature_code.startsWith(kind));
+}
+
+// Leave out places that would look identical in the list (same name, region and country), keeping the first, best match
+function withoutRepeats(places) {
+    const seen = new Set();
+    return places.filter(function (place) {
+        const label = [place.name, place.admin1, place.country].join("|");
+        if (seen.has(label)) {
+            return false;
+        }
+        seen.add(label);
+        return true;
+    });
+}
+
+// List the places under the search box. Names are added as plain text, so nothing in them can be treated as HTML
+function showSuggestions(places) {
+    suggestedPlaces = places;
+    suggestionList.replaceChildren();
+    places.forEach(function (place, i) {
+        const item = document.createElement("li");
+        item.className = "suggestion";
+        item.dataset.index = i;
+        item.id = "suggestion-" + i; // lets the search box point screen readers at the highlighted place
+        item.setAttribute("role", "option");
+        item.setAttribute("aria-selected", "false");
+        const name = document.createElement("span");
+        name.className = "suggestion-name";
+        name.textContent = place.name;
+        const area = document.createElement("span");
+        area.className = "suggestion-area";
+        area.textContent = [place.admin1, place.country].filter((part) => part && part !== place.name).join(", "); // e.g. "Illinois, United States"
+        item.append(name, " ", area);
+        suggestionList.append(item);
+    });
+    suggestionStatus.textContent =
+        places.length === 0
+            ? "No matching places"
+            : `${places.length} ${places.length === 1 ? "place" : "places"} found`;
+    if (places.length > 0) {
+        openSuggestions();
+    } else {
+        suggestionList.hidden = true;
+        locationInput.setAttribute("aria-expanded", "false");
+    }
+}
+
+// Show the list with nothing highlighted yet
+function openSuggestions() {
+    suggestionList.hidden = false;
+    locationInput.setAttribute("aria-expanded", "true");
+    setActive(-1);
+}
+
+// Hide the list, and stop any lookup still waiting or on its way
+function closeSuggestions() {
+    clearTimeout(suggestionTimer);
+    latestLookup++;
+    suggestionList.hidden = true;
+    locationInput.setAttribute("aria-expanded", "false");
+    setActive(-1);
+}
+
+// Highlight one place in the list (-1 for none), and tell screen readers which one it is
+function setActive(index) {
+    activeIndex = index;
+    [...suggestionList.children].forEach(function (item, i) {
+        item.setAttribute("aria-selected", i === index);
+    });
+    if (index >= 0) {
+        locationInput.setAttribute("aria-activedescendant", "suggestion-" + index);
+    } else {
+        locationInput.removeAttribute("aria-activedescendant");
+    }
+}
+
+// Keyboard: arrows move through the list, Enter picks the highlighted place (or searches as usual), Escape closes the list
+locationInput.addEventListener("keydown", function (event) {
+    const open = !suggestionList.hidden;
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+        if (suggestedPlaces.length === 0) {
+            return;
+        }
+        event.preventDefault(); // stop the cursor jumping to the start or end of the text
+        if (!open) {
+            openSuggestions();
+        }
+        // Step through the list and wrap around, passing through "nothing highlighted" between the last and first place
+        let next = activeIndex + (event.key === "ArrowDown" ? 1 : -1);
+        if (next >= suggestedPlaces.length) {
+            next = -1;
+        } else if (next < -1) {
+            next = suggestedPlaces.length - 1;
+        }
+        setActive(next);
+    } else if (event.key === "Enter") {
+        if (open && activeIndex >= 0) {
+            chooseSuggestion(suggestedPlaces[activeIndex]);
+        } else {
+            search();
+        }
+    } else if (event.key === "Escape" && open) {
+        closeSuggestions();
+    }
+});
+
+// Show the weather for a picked place, using its exact position
+function chooseSuggestion(place) {
+    locationInput.value = place.name;
+    pickedPlace = place;
+    search();
+}
+
+// Keep the cursor in the search box while tapping the list, then pick the tapped place
+suggestionList.addEventListener("pointerdown", function (event) {
+    event.preventDefault();
+});
+suggestionList.addEventListener("click", function (event) {
+    const item = event.target.closest(".suggestion");
+    if (item) {
+        chooseSuggestion(suggestedPlaces[item.dataset.index]);
+    }
+});
+
+// Tapping anywhere outside the search box closes the list
+document.addEventListener("click", function (event) {
+    if (!event.target.closest(".weather-search")) {
+        closeSuggestions();
     }
 });
 
@@ -276,9 +451,10 @@ function weatherContainerHTML(content) {
       </div>`;
 }
 
-// Turn a place name into coordinates using Open-Meteo's geocoding service (no API key needed)
-async function geocodeLocation(name) {
-    const apiURLGeocoding = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=1&language=en&format=json`; // encode so spaces, accents and symbols are sent safely
+// Find places matching a name using Open-Meteo's geocoding service (no API key needed), best match first.
+// Gives back up to `count` places, each with its name, region (admin1), country, latitude and longitude, or an empty list if nothing matches.
+async function findPlaces(name, count) {
+    const apiURLGeocoding = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=${count}&language=en&format=json`; // encode so spaces, accents and symbols are sent safely
 
     const response = await fetch(apiURLGeocoding);
     if (!response.ok) {
@@ -286,11 +462,16 @@ async function geocodeLocation(name) {
     }
 
     const data = await response.json();
-    if (!data.results) {
-        throw new Error("We could not get the weather information. <br>Please check your spelling and try again."); // no place matched the name
-    }
+    return data.results || []; // "results" is left out completely when no place matches
+}
 
-    return data.results[0]; // best match, includes latitude, longitude and timezone
+// Turn a place name into coordinates: the best match for the name
+async function geocodeLocation(name) {
+    const places = await findPlaces(name, 1);
+    if (places.length === 0) {
+        throw new Error("We could not get the weather information. <br>Please check your spelling and try again.");
+    }
+    return places[0];
 }
 
 // Open-Meteo describes the sky with a number (a WMO weather code) instead of text and an icon.
