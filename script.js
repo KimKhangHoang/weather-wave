@@ -125,6 +125,7 @@ function placeLabel(name, country) {
 // Run a search for the device's location, named after the town it is in (or "Your location" if that can't be found)
 function searchMyLocation() {
     countEvent("use-my-location");
+    document.getElementById("location").value = ""; // clear any earlier typed place, so the box doesn't contradict the card
     showWeather(async function () {
         const position = await getDevicePosition();
         const latitude = position.coords.latitude;
