@@ -272,15 +272,36 @@ locationInput.addEventListener("input", function () {
         const lookup = ++latestLookup;
         let places;
         try {
-            places = await findPlaces(text, 5);
+            places = await findPlaces(text, 10); // more than needed, as some are left out below
         } catch (error) {
             places = []; // no list if the lookup fails, searching still works as usual
         }
         if (lookup === latestLookup) {
-            showSuggestions(places);
+            // Prefer towns and regions over landmarks like parks and airports, unless landmarks are all there is (e.g. "Mount Everest")
+            const towns = places.filter(isTownOrRegion);
+            showSuggestions(withoutRepeats(towns.length > 0 ? towns : places).slice(0, 5));
         }
     }, 300);
 });
+
+// Whether a place is a town or suburb, a state or region, a country or an island, going by its GeoNames feature code
+// (e.g. "PPL" a populated place, "ADM1" a state, "PCLI" a country, "ISL" an island). Places without a code are kept.
+function isTownOrRegion(place) {
+    return !place.feature_code || ["PPL", "ADM", "PCL", "ISL"].some((kind) => place.feature_code.startsWith(kind));
+}
+
+// Leave out places that would look identical in the list (same name, region and country), keeping the first, best match
+function withoutRepeats(places) {
+    const seen = new Set();
+    return places.filter(function (place) {
+        const label = [place.name, place.admin1, place.country].join("|");
+        if (seen.has(label)) {
+            return false;
+        }
+        seen.add(label);
+        return true;
+    });
+}
 
 // List the places under the search box. Names are added as plain text, so nothing in them can be treated as HTML
 function showSuggestions(places) {
