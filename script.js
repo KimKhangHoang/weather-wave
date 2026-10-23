@@ -276,9 +276,10 @@ function weatherContainerHTML(content) {
       </div>`;
 }
 
-// Turn a place name into coordinates using Open-Meteo's geocoding service (no API key needed)
-async function geocodeLocation(name) {
-    const apiURLGeocoding = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=1&language=en&format=json`; // encode so spaces, accents and symbols are sent safely
+// Find places matching a name using Open-Meteo's geocoding service (no API key needed), best match first.
+// Gives back up to `count` places, each with its name, region (admin1), country, latitude and longitude, or an empty list if nothing matches.
+async function findPlaces(name, count) {
+    const apiURLGeocoding = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=${count}&language=en&format=json`; // encode so spaces, accents and symbols are sent safely
 
     const response = await fetch(apiURLGeocoding);
     if (!response.ok) {
@@ -286,11 +287,16 @@ async function geocodeLocation(name) {
     }
 
     const data = await response.json();
-    if (!data.results) {
-        throw new Error("We could not get the weather information. <br>Please check your spelling and try again."); // no place matched the name
-    }
+    return data.results || []; // "results" is left out completely when no place matches
+}
 
-    return data.results[0]; // best match, includes latitude, longitude and timezone
+// Turn a place name into coordinates: the best match for the name
+async function geocodeLocation(name) {
+    const places = await findPlaces(name, 1);
+    if (places.length === 0) {
+        throw new Error("We could not get the weather information. <br>Please check your spelling and try again.");
+    }
+    return places[0];
 }
 
 // Open-Meteo describes the sky with a number (a WMO weather code) instead of text and an icon.
