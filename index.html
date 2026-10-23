@@ -27,11 +27,14 @@
 
         <div class="search-bar-container">
             <div class="weather-search">
-                <input type="text" id="location" placeholder="Enter location" />
+                <!-- autocomplete off: the browser's own list of past entries would cover our suggestions -->
+                <input type="text" id="location" placeholder="Enter location" autocomplete="off" />
                 <button type="button" id="useLocation" aria-label="Use my location" title="Use my location">
                     <span class="fa-solid fa-location-crosshairs" aria-hidden="true"></span>
                 </button>
                 <button id="searchWeather">Search</button>
+                <!-- Matching places, filled in by script.js while typing -->
+                <ul id="suggestions" class="suggestions" hidden></ul>
             </div>
             <button
                 type="button"
