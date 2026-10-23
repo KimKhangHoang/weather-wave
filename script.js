@@ -87,8 +87,20 @@ function setSky(scene) {
 }
 
 // Until a place is searched, the visitor's own clock picks a day or night sky (daytime counted as 6am to 6pm)
-const hourNow = new Date().getHours();
-setSky(hourNow >= 6 && hourNow < 18 ? "clear-day" : "clear-night");
+function clockSky() {
+    const hour = new Date().getHours();
+    return hour >= 6 && hour < 18 ? "clear-day" : "clear-night";
+}
+
+let skyFollowsClock = true; // becomes false once a search shows a place, as the sky then follows that place's weather
+setSky(clockSky());
+
+// Check the clock once a minute, so a page left open turns to night at 6pm and back to day at 6am
+setInterval(function () {
+    if (skyFollowsClock) {
+        setSky(clockSky()); // does nothing until the hour actually crosses 6am or 6pm
+    }
+}, 60000);
 
 // Run a search for the typed place, unless nothing (or only spaces) has been typed
 function search() {
@@ -125,6 +137,7 @@ function placeLabel(name, country) {
 // Run a search for the device's location, named after the town it is in (or "Your location" if that can't be found)
 function searchMyLocation() {
     countEvent("use-my-location");
+    document.getElementById("location").value = ""; // clear any earlier typed place, so the box doesn't contradict the card
     showWeather(async function () {
         const position = await getDevicePosition();
         const latitude = position.coords.latitude;
@@ -339,6 +352,7 @@ async function showWeather(findPlace) {
     spinner.remove();
     if (sky) {
         setSky(sky);
+        skyFollowsClock = false;
     }
 }
 
