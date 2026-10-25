@@ -590,21 +590,25 @@ function weatherCardHTML(placeName, dataWeather) {
     const humidity = current.relative_humidity_2m;
     const wind = Math.round(current.wind_speed_10m); // already in km/h, OpenWeatherMap sent m/s
 
-    const dateTime = new Date(Date.now() + timeZone * 1000)
-        .toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "short",
-            day: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit",
-            timeZone: "UTC",
-            hour12: false,
-        })
-        .replace(", ", "-")
-        .replace(" ", "-");
-    let [date, time] = dateTime.split(","); // split the date and time based on the comma
-    if (date) date = date.trim(); // trim any whitespace from the date and time
-    if (time) time = time.trim();
+    // The place's local date and time, e.g. "Oct-25-2026" and "01:00".
+    // Each part is asked for separately, because browsers join them differently (Safari writes "Oct 25, 2026 at 01:00", Chrome "Oct 25, 2026, 01:00").
+    // h23 counts hours 00 to 23, so just after midnight shows "00:05" rather than "24:05".
+    const parts = {};
+    new Intl.DateTimeFormat("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hourCycle: "h23",
+        timeZone: "UTC", // the offset is already added, so read the result as UTC
+    })
+        .formatToParts(new Date(Date.now() + timeZone * 1000))
+        .forEach(function (part) {
+            parts[part.type] = part.value;
+        });
+    const date = `${parts.month}-${parts.day}-${parts.year}`;
+    const time = `${parts.hour}:${parts.minute}`;
 
     const rain = current.precipitation; // rain, showers and snow over the past hour, in mm (always present)
 
