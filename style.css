@@ -265,7 +265,7 @@ h1,
 
 /* The one chosen with the arrow keys also gets a blue ring, like the keyboard focus ring elsewhere, since the pale highlight alone is hard to see */
 .suggestion[aria-selected="true"] {
-    outline: 2px solid #007bff;
+    outline: 2px solid #0062cc;
     outline-offset: -2px;
 }
 
@@ -302,20 +302,21 @@ button {
     border: 1px solid #ccc;
 }
 
+/* The app's blue is the deep blue from the bottom of the logo, dark enough for white text on it to read easily */
 button {
-    background-color: #007bff;
+    background-color: #0062cc;
     color: white;
     border: none;
     cursor: pointer;
 }
 
 button:hover {
-    background-color: #0056b3;
+    background-color: #004a99;
 }
 
 #useLocation {
     background-color: white;
-    color: #007bff;
+    color: #0062cc;
     border: 1px solid #ccc;
 }
 
@@ -326,7 +327,7 @@ button:hover {
 /* Keyboard focus: a clear blue ring around whatever the keyboard is on.
    :focus-visible shows it when using the keyboard but not after a mouse click or tap (the text box always shows it, so it's clear where typing goes). */
 :focus-visible {
-    outline: 3px solid #007bff;
+    outline: 3px solid #0062cc;
     outline-offset: 2px;
 }
 
@@ -373,7 +374,7 @@ button:hover {
     left: 0.25rem;
     width: 2.75rem;
     border-radius: 999px;
-    background-color: #007bff;
+    background-color: #0062cc;
 }
 
 #unitSwitch[aria-checked="true"] .unit-switch-thumb {
@@ -415,7 +416,7 @@ button:hover {
 .spinner {
     border: 0.5rem solid rgba(255, 255, 255, 0.7);
     border-radius: 50%;
-    border-top-color: #007bff; /* same blue as the Search button */
+    border-top-color: #0062cc; /* same blue as the Search button */
     width: 4.75rem; /* includes the 0.5rem border on each side */
     height: 4.75rem;
     animation: spin 2s linear infinite; /* Spinning animation */
