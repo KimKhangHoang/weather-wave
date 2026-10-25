@@ -1,8 +1,8 @@
 # <img src="icons/favicon.svg" width="32" height="32" alt="" /> WeatherWave
 
-[![Visits](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fweatherwave.goatcounter.com%2Fcounter%2FTOTAL.json&query=%24.count&label=visits&color=007bff)](https://weatherwave.goatcounter.com)
-[![Searches](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fweatherwave.goatcounter.com%2Fcounter%2Fsearch.json&query=%24.count&label=searches&color=007bff)](https://weatherwave.goatcounter.com)
-[![Location searches](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fweatherwave.goatcounter.com%2Fcounter%2Fuse-my-location.json&query=%24.count&label=location%20searches&color=007bff)](https://weatherwave.goatcounter.com)
+[![Visits](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fweatherwave.goatcounter.com%2Fcounter%2FTOTAL.json&query=%24.count&label=visits&color=0062cc)](https://weatherwave.goatcounter.com)
+[![Searches](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fweatherwave.goatcounter.com%2Fcounter%2Fsearch.json&query=%24.count&label=searches&color=0062cc)](https://weatherwave.goatcounter.com)
+[![Location searches](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fweatherwave.goatcounter.com%2Fcounter%2Fuse-my-location.json&query=%24.count&label=location%20searches&color=0062cc)](https://weatherwave.goatcounter.com)
 
 WeatherWave shows the current weather, the next 24 hours and the next 7 days for any place in the world.
 
