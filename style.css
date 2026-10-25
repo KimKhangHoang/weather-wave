@@ -58,7 +58,8 @@ body[data-sky="fog-night"] {
 }
 
 body[data-sky="rain-day"] {
-    --sky: linear-gradient(180deg, #4f6577 0%, #71889a 50%, #9fb0bd 100%);
+    /* kept fairly dark all the way down, so the white footer text at the bottom stays readable */
+    --sky: linear-gradient(180deg, #4f6577 0%, #596d7f 50%, #627585 100%);
     --sky-top: #4f6577;
 }
 
@@ -73,7 +74,8 @@ body[data-sky="snow-day"] {
 }
 
 body[data-sky="snow-night"] {
-    --sky: linear-gradient(180deg, #1d2a40 0%, #34476a 55%, #6a7fa3 100%);
+    /* the lighter bottom is just dark enough for the white footer text */
+    --sky: linear-gradient(180deg, #1d2a40 0%, #34476a 55%, #5d7196 100%);
     --sky-top: #1d2a40;
 }
 
