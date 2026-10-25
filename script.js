@@ -699,9 +699,11 @@ function hourlyStripHTML(hourly, currentTime) {
         })
         .join("");
 
+    // tabindex lets keyboard users reach the strip and scroll it with the arrow keys (Chrome allows this by itself, Safari doesn't).
+    // The heading doubles as its name, so screen readers say "Next 24 hours" when it's reached.
     return `
-      <h3>Next 24 hours</h3>
-      <ol class="hourly-strip">${items}</ol>`;
+      <h3 id="hourlyHeading">Next 24 hours</h3>
+      <ol class="hourly-strip" tabindex="0" aria-labelledby="hourlyHeading">${items}</ol>`;
 }
 
 // Short weekday name for a date like "2026-10-18", e.g. "Sun".
