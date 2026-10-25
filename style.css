@@ -263,6 +263,12 @@ h1,
     background-color: #e8f1fd;
 }
 
+/* The one chosen with the arrow keys also gets a blue ring, like the keyboard focus ring elsewhere, since the pale highlight alone is hard to see */
+.suggestion[aria-selected="true"] {
+    outline: 2px solid #007bff;
+    outline-offset: -2px;
+}
+
 /* Text for screen readers only: kept on the page but not shown */
 .visually-hidden {
     position: absolute;
@@ -315,6 +321,19 @@ button:hover {
 
 #useLocation:hover {
     background-color: #f3f6fb;
+}
+
+/* Keyboard focus: a clear blue ring around whatever the keyboard is on.
+   :focus-visible shows it when using the keyboard but not after a mouse click or tap (the text box always shows it, so it's clear where typing goes). */
+:focus-visible {
+    outline: 3px solid #007bff;
+    outline-offset: 2px;
+}
+
+/* The unit switch and footer links sit straight on the sky, so their ring uses the heading and footer text colour instead (black on light skies, white on dark ones) */
+#unitSwitch:focus-visible,
+.attribution a:focus-visible {
+    outline-color: var(--on-sky);
 }
 
 /* °C / °F switch under the search box: one white pill with a blue highlight that slides behind the chosen unit */
