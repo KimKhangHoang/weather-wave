@@ -9,6 +9,17 @@ function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
+// Make text safe to put inside HTML, so characters like < and & show as themselves instead of being read as tags.
+// Used for text from outside the app (place names, error messages), which is shown as-is and never as code.
+function escapeHTML(text) {
+    return String(text)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+}
+
 // Temperature unit currently shown: "C" or "F"
 let unit = "C";
 
@@ -225,7 +236,7 @@ function rememberPlaceName(cacheKey, name) {
 function getDevicePosition() {
     return new Promise(function (resolve, reject) {
         if (!navigator.geolocation) {
-            reject(new Error("Your browser cannot share your location. <br>Please search for a place instead."));
+            reject(new Error("Your browser cannot share your location.\nPlease search for a place instead."));
             return;
         }
         navigator.geolocation.getCurrentPosition(
@@ -234,14 +245,12 @@ function getDevicePosition() {
                 if (error.code === error.PERMISSION_DENIED) {
                     reject(
                         new Error(
-                            "Location access is blocked. <br>Allow it in your browser settings, or search for a place instead.",
+                            "Location access is blocked.\nAllow it in your browser settings, or search for a place instead.",
                         ),
                     );
                 } else {
                     reject(
-                        new Error(
-                            "We could not find your location. <br>Please try again, or search for a place instead.",
-                        ),
+                        new Error("We could not find your location.\nPlease try again, or search for a place instead."),
                     );
                 }
             },
@@ -458,7 +467,7 @@ async function findPlaces(name, count) {
 
     const response = await fetch(apiURLGeocoding);
     if (!response.ok) {
-        throw new Error("We could not get the weather information. <br>Please try again later.");
+        throw new Error("We could not get the weather information.\nPlease try again later.");
     }
 
     const data = await response.json();
@@ -469,7 +478,7 @@ async function findPlaces(name, count) {
 async function geocodeLocation(name) {
     const places = await findPlaces(name, 1);
     if (places.length === 0) {
-        throw new Error("We could not get the weather information. <br>Please check your spelling and try again.");
+        throw new Error("We could not get the weather information.\nPlease check your spelling and try again.");
     }
     return places[0];
 }
@@ -523,7 +532,7 @@ async function showWeather(findPlace) {
         cardsHTML = weatherContainerHTML(weatherCardHTML(place.name, dataWeather)) + forecastCardHTML(dataWeather);
         sky = skyFor(dataWeather.current);
     } catch (error) {
-        cardsHTML = weatherContainerHTML(error.message);
+        cardsHTML = weatherContainerHTML(escapeHTML(error.message).replaceAll("\n", "<br>")); // a line break in a message starts a new line
     }
 
     if (!spinner.isConnected) {
@@ -558,7 +567,7 @@ async function fetchWeatherAt(latitude, longitude) {
 
     const responseWeather = await fetch(apiURLWeather);
     if (!responseWeather.ok) {
-        throw new Error("We could not get the weather information. <br>Please try again later.");
+        throw new Error("We could not get the weather information.\nPlease try again later.");
     }
     return responseWeather.json();
 }
@@ -599,7 +608,7 @@ function weatherCardHTML(placeName, dataWeather) {
             <div id="date">${date}</div>
             <div id="time">${time}</div>
          </div>
-         <h2>${placeName}</h2>
+         <h2>${escapeHTML(placeName)}</h2>
          <span id="weather-icon" class="fa-solid ${weatherIcon}" aria-hidden="true"></span>
          <div>${weatherDescription}</div>
          <div id="temp" data-celsius="${temperature}">${formatTemperature(temperature)}</div>
