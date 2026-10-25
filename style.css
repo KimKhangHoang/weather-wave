@@ -357,7 +357,7 @@ button:hover {
     width: 2.75rem;
     padding: 0.3rem 0;
     font-weight: bold;
-    color: rgb(150, 150, 150);
+    color: rgb(70, 70, 70); /* the same grey as the cards' text */
     transition: color 0.25s;
 }
 
@@ -439,7 +439,7 @@ body:has(.spinner) .attribution {
 
 .weather-info-container {
     border-radius: 1.875rem;
-    color: rgb(91, 91, 91);
+    color: rgb(70, 70, 70); /* dark enough to read easily even where the panel is bluest */
     margin-top: 2rem;
     padding: 1rem;
     display: flex;
@@ -526,7 +526,7 @@ body:has(.spinner) .attribution {
     margin-top: 1rem;
     padding: 1rem 1.25rem;
     border-radius: 1.875rem;
-    color: rgb(91, 91, 91);
+    color: rgb(70, 70, 70); /* same as the weather card */
 }
 
 .forecast-card h3 {
@@ -543,7 +543,7 @@ body:has(.spinner) .attribution {
     display: flex;
     overflow-x: auto;
     scrollbar-width: thin;
-    scrollbar-color: rgb(91, 91, 91) transparent; /* same grey as the card's headings, on a see-through track */
+    scrollbar-color: rgb(70, 70, 70) transparent; /* same grey as the card's headings, on a see-through track */
 }
 
 /* One hour: time, icon, temperature and chance of rain stacked in a small column.
@@ -619,10 +619,7 @@ body:has(.spinner) .attribution {
     white-space: nowrap;
 }
 
-.forecast-low {
-    color: rgb(150, 150, 150);
-}
-
+/* Lows in the normal text colour, highs in bold. A paler grey for lows would be too faint to read easily */
 .forecast-high {
     font-weight: bold;
 }
