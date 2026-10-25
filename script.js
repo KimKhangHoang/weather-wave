@@ -435,13 +435,11 @@ document.addEventListener("click", function (event) {
     }
 });
 
-// Display a loading spinner straight after the search bar (and above the footer), and hand it back
+// Display a loading spinner straight after the search bar (and above the footer), and hand it back.
+// Screen readers skip it, since #weatherStatus already says the weather is loading.
 function displaySpinner() {
     const searchBar = document.querySelector(".search-bar-container");
-    searchBar.insertAdjacentHTML(
-        "afterend",
-        `<div class="spinner" role="status" aria-label="Loading the weather"></div>`,
-    );
+    searchBar.insertAdjacentHTML("afterend", `<div class="spinner" aria-hidden="true"></div>`);
     return searchBar.nextElementSibling; // the spinner just added
 }
 
@@ -520,19 +518,25 @@ const weatherCodes = {
 // Show the weather card and forecast card for a place, with a spinner while waiting.
 // findPlace is a function telling it where to look (typed search or device location) and returning {latitude, longitude, name}.
 // If anything fails, the error message is shown in the weather card instead.
+// Screen readers are told when it starts loading, then given a short summary or the error.
 async function showWeather(findPlace) {
+    const weatherStatus = document.querySelector("#weatherStatus");
     removePreviousWeatherContainer();
     const spinner = displaySpinner(); // this search's own spinner, so a newer search can't mix up results
+    weatherStatus.textContent = "Loading the weather"; // also makes sure searching the same place twice is announced again
 
     let cardsHTML;
+    let summary;
     let sky; // stays empty after a failed search, so the background doesn't change
     try {
         const place = await findPlace();
         const dataWeather = await fetchWeatherAt(place.latitude, place.longitude);
         cardsHTML = weatherContainerHTML(weatherCardHTML(place.name, dataWeather)) + forecastCardHTML(dataWeather);
+        summary = `Weather for ${place.name}: ${formatTemperature(dataWeather.current.temperature_2m)}, ${conditionFor(dataWeather.current.weather_code).description}`;
         sky = skyFor(dataWeather.current);
     } catch (error) {
         cardsHTML = weatherContainerHTML(escapeHTML(error.message).replaceAll("\n", "<br>")); // a line break in a message starts a new line
+        summary = error.message.replaceAll("\n", " ");
     }
 
     if (!spinner.isConnected) {
@@ -540,6 +544,7 @@ async function showWeather(findPlace) {
     }
     spinner.insertAdjacentHTML("afterend", cardsHTML); // the cards take the spinner's place
     spinner.remove();
+    weatherStatus.textContent = summary; // plain text, so it needs no escaping
     if (sky) {
         setSky(sky);
         skyFollowsClock = false;
