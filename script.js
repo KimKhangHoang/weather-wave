@@ -9,6 +9,17 @@ function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
+// Make text safe to put inside HTML, so characters like < and & show as themselves instead of being read as tags.
+// Used for text from outside the app (place names, error messages), which is shown as-is and never as code.
+function escapeHTML(text) {
+    return String(text)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+}
+
 // Temperature unit currently shown: "C" or "F"
 let unit = "C";
 
@@ -225,7 +236,7 @@ function rememberPlaceName(cacheKey, name) {
 function getDevicePosition() {
     return new Promise(function (resolve, reject) {
         if (!navigator.geolocation) {
-            reject(new Error("Your browser cannot share your location. <br>Please search for a place instead."));
+            reject(new Error("Your browser cannot share your location.\nPlease search for a place instead."));
             return;
         }
         navigator.geolocation.getCurrentPosition(
@@ -234,14 +245,12 @@ function getDevicePosition() {
                 if (error.code === error.PERMISSION_DENIED) {
                     reject(
                         new Error(
-                            "Location access is blocked. <br>Allow it in your browser settings, or search for a place instead.",
+                            "Location access is blocked.\nAllow it in your browser settings, or search for a place instead.",
                         ),
                     );
                 } else {
                     reject(
-                        new Error(
-                            "We could not find your location. <br>Please try again, or search for a place instead.",
-                        ),
+                        new Error("We could not find your location.\nPlease try again, or search for a place instead."),
                     );
                 }
             },
@@ -426,13 +435,11 @@ document.addEventListener("click", function (event) {
     }
 });
 
-// Display a loading spinner straight after the search bar (and above the footer), and hand it back
+// Display a loading spinner straight after the search bar (and above the footer), and hand it back.
+// Screen readers skip it, since #weatherStatus already says the weather is loading.
 function displaySpinner() {
     const searchBar = document.querySelector(".search-bar-container");
-    searchBar.insertAdjacentHTML(
-        "afterend",
-        `<div class="spinner" role="status" aria-label="Loading the weather"></div>`,
-    );
+    searchBar.insertAdjacentHTML("afterend", `<div class="spinner" aria-hidden="true"></div>`);
     return searchBar.nextElementSibling; // the spinner just added
 }
 
@@ -458,7 +465,7 @@ async function findPlaces(name, count) {
 
     const response = await fetch(apiURLGeocoding);
     if (!response.ok) {
-        throw new Error("We could not get the weather information. <br>Please try again later.");
+        throw new Error("We could not get the weather information.\nPlease try again later.");
     }
 
     const data = await response.json();
@@ -469,7 +476,7 @@ async function findPlaces(name, count) {
 async function geocodeLocation(name) {
     const places = await findPlaces(name, 1);
     if (places.length === 0) {
-        throw new Error("We could not get the weather information. <br>Please check your spelling and try again.");
+        throw new Error("We could not get the weather information.\nPlease check your spelling and try again.");
     }
     return places[0];
 }
@@ -511,19 +518,25 @@ const weatherCodes = {
 // Show the weather card and forecast card for a place, with a spinner while waiting.
 // findPlace is a function telling it where to look (typed search or device location) and returning {latitude, longitude, name}.
 // If anything fails, the error message is shown in the weather card instead.
+// Screen readers are told when it starts loading, then given a short summary or the error.
 async function showWeather(findPlace) {
+    const weatherStatus = document.querySelector("#weatherStatus");
     removePreviousWeatherContainer();
     const spinner = displaySpinner(); // this search's own spinner, so a newer search can't mix up results
+    weatherStatus.textContent = "Loading the weather"; // also makes sure searching the same place twice is announced again
 
     let cardsHTML;
+    let summary;
     let sky; // stays empty after a failed search, so the background doesn't change
     try {
         const place = await findPlace();
         const dataWeather = await fetchWeatherAt(place.latitude, place.longitude);
         cardsHTML = weatherContainerHTML(weatherCardHTML(place.name, dataWeather)) + forecastCardHTML(dataWeather);
+        summary = `Weather for ${place.name}: ${formatTemperature(dataWeather.current.temperature_2m)}, ${conditionFor(dataWeather.current.weather_code).description}`;
         sky = skyFor(dataWeather.current);
     } catch (error) {
-        cardsHTML = weatherContainerHTML(error.message);
+        cardsHTML = weatherContainerHTML(escapeHTML(error.message).replaceAll("\n", "<br>")); // a line break in a message starts a new line
+        summary = error.message.replaceAll("\n", " ");
     }
 
     if (!spinner.isConnected) {
@@ -531,6 +544,7 @@ async function showWeather(findPlace) {
     }
     spinner.insertAdjacentHTML("afterend", cardsHTML); // the cards take the spinner's place
     spinner.remove();
+    weatherStatus.textContent = summary; // plain text, so it needs no escaping
     if (sky) {
         setSky(sky);
         skyFollowsClock = false;
@@ -558,7 +572,7 @@ async function fetchWeatherAt(latitude, longitude) {
 
     const responseWeather = await fetch(apiURLWeather);
     if (!responseWeather.ok) {
-        throw new Error("We could not get the weather information. <br>Please try again later.");
+        throw new Error("We could not get the weather information.\nPlease try again later.");
     }
     return responseWeather.json();
 }
@@ -599,7 +613,7 @@ function weatherCardHTML(placeName, dataWeather) {
             <div id="date">${date}</div>
             <div id="time">${time}</div>
          </div>
-         <h2>${placeName}</h2>
+         <h2>${escapeHTML(placeName)}</h2>
          <span id="weather-icon" class="fa-solid ${weatherIcon}" aria-hidden="true"></span>
          <div>${weatherDescription}</div>
          <div id="temp" data-celsius="${temperature}">${formatTemperature(temperature)}</div>
@@ -685,9 +699,11 @@ function hourlyStripHTML(hourly, currentTime) {
         })
         .join("");
 
+    // tabindex lets keyboard users reach the strip and scroll it with the arrow keys (Chrome allows this by itself, Safari doesn't).
+    // The heading doubles as its name, so screen readers say "Next 24 hours" when it's reached.
     return `
-      <h3>Next 24 hours</h3>
-      <ol class="hourly-strip">${items}</ol>`;
+      <h3 id="hourlyHeading">Next 24 hours</h3>
+      <ol class="hourly-strip" tabindex="0" aria-labelledby="hourlyHeading">${items}</ol>`;
 }
 
 // Short weekday name for a date like "2026-10-18", e.g. "Sun".

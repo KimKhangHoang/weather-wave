@@ -58,7 +58,8 @@ body[data-sky="fog-night"] {
 }
 
 body[data-sky="rain-day"] {
-    --sky: linear-gradient(180deg, #4f6577 0%, #71889a 50%, #9fb0bd 100%);
+    /* kept fairly dark all the way down, so the white footer text at the bottom stays readable */
+    --sky: linear-gradient(180deg, #4f6577 0%, #596d7f 50%, #627585 100%);
     --sky-top: #4f6577;
 }
 
@@ -73,7 +74,8 @@ body[data-sky="snow-day"] {
 }
 
 body[data-sky="snow-night"] {
-    --sky: linear-gradient(180deg, #1d2a40 0%, #34476a 55%, #6a7fa3 100%);
+    /* the lighter bottom is just dark enough for the white footer text */
+    --sky: linear-gradient(180deg, #1d2a40 0%, #34476a 55%, #5d7196 100%);
     --sky-top: #1d2a40;
 }
 
@@ -263,6 +265,12 @@ h1,
     background-color: #e8f1fd;
 }
 
+/* The one chosen with the arrow keys also gets a blue ring, like the keyboard focus ring elsewhere, since the pale highlight alone is hard to see */
+.suggestion[aria-selected="true"] {
+    outline: 2px solid #0062cc;
+    outline-offset: -2px;
+}
+
 /* Text for screen readers only: kept on the page but not shown */
 .visually-hidden {
     position: absolute;
@@ -296,25 +304,39 @@ button {
     border: 1px solid #ccc;
 }
 
+/* The app's blue is the deep blue from the bottom of the logo, dark enough for white text on it to read easily */
 button {
-    background-color: #007bff;
+    background-color: #0062cc;
     color: white;
     border: none;
     cursor: pointer;
 }
 
 button:hover {
-    background-color: #0056b3;
+    background-color: #004a99;
 }
 
 #useLocation {
     background-color: white;
-    color: #007bff;
+    color: #0062cc;
     border: 1px solid #ccc;
 }
 
 #useLocation:hover {
     background-color: #f3f6fb;
+}
+
+/* Keyboard focus: a clear blue ring around whatever the keyboard is on.
+   :focus-visible shows it when using the keyboard but not after a mouse click or tap (the text box always shows it, so it's clear where typing goes). */
+:focus-visible {
+    outline: 3px solid #0062cc;
+    outline-offset: 2px;
+}
+
+/* The unit switch and footer links sit straight on the sky, so their ring uses the heading and footer text colour instead (black on light skies, white on dark ones) */
+#unitSwitch:focus-visible,
+.attribution a:focus-visible {
+    outline-color: var(--on-sky);
 }
 
 /* °C / °F switch under the search box: one white pill with a blue highlight that slides behind the chosen unit */
@@ -338,7 +360,7 @@ button:hover {
     width: 2.75rem;
     padding: 0.3rem 0;
     font-weight: bold;
-    color: rgb(150, 150, 150);
+    color: rgb(70, 70, 70); /* the same grey as the cards' text */
     transition: color 0.25s;
 }
 
@@ -354,7 +376,7 @@ button:hover {
     left: 0.25rem;
     width: 2.75rem;
     border-radius: 999px;
-    background-color: #007bff;
+    background-color: #0062cc;
 }
 
 #unitSwitch[aria-checked="true"] .unit-switch-thumb {
@@ -396,7 +418,7 @@ button:hover {
 .spinner {
     border: 0.5rem solid rgba(255, 255, 255, 0.7);
     border-radius: 50%;
-    border-top-color: #007bff; /* same blue as the Search button */
+    border-top-color: #0062cc; /* same blue as the Search button */
     width: 4.75rem; /* includes the 0.5rem border on each side */
     height: 4.75rem;
     animation: spin 2s linear infinite; /* Spinning animation */
@@ -420,7 +442,7 @@ body:has(.spinner) .attribution {
 
 .weather-info-container {
     border-radius: 1.875rem;
-    color: rgb(91, 91, 91);
+    color: rgb(70, 70, 70); /* dark enough to read easily even where the panel is bluest */
     margin-top: 2rem;
     padding: 1rem;
     display: flex;
@@ -457,13 +479,14 @@ body:has(.spinner) .attribution {
     margin-bottom: 0rem;
 }
 
-/* Main weather icon, sized to take up the same space as the old 7rem image */
+/* Main weather icon, sized to take up the same space as the old 7rem image.
+   All the weather icons use this deep green, dark enough to stand out clearly from the pale panels. */
 #weather-icon {
     display: block;
     font-size: 4.5rem;
     height: 7rem;
     line-height: 7rem;
-    color: rgb(79, 160, 134);
+    color: #236b55;
 }
 
 .weather-info-container div#temp {
@@ -493,7 +516,7 @@ body:has(.spinner) .attribution {
     display: block;
     font-size: 1.5rem;
     margin-bottom: 0.5rem;
-    color: rgb(79, 160, 134);
+    color: #236b55;
 }
 
 .weather-block p {
@@ -507,7 +530,7 @@ body:has(.spinner) .attribution {
     margin-top: 1rem;
     padding: 1rem 1.25rem;
     border-radius: 1.875rem;
-    color: rgb(91, 91, 91);
+    color: rgb(70, 70, 70); /* same as the weather card */
 }
 
 .forecast-card h3 {
@@ -524,7 +547,7 @@ body:has(.spinner) .attribution {
     display: flex;
     overflow-x: auto;
     scrollbar-width: thin;
-    scrollbar-color: rgb(91, 91, 91) transparent; /* same grey as the card's headings, on a see-through track */
+    scrollbar-color: rgb(70, 70, 70) transparent; /* same grey as the card's headings, on a see-through track */
 }
 
 /* One hour: time, icon, temperature and chance of rain stacked in a small column.
@@ -548,7 +571,7 @@ body:has(.spinner) .attribution {
 
 .hour-icon {
     font-size: 1.25rem;
-    color: rgb(79, 160, 134);
+    color: #236b55;
 }
 
 .hour-temp {
@@ -557,7 +580,7 @@ body:has(.spinner) .attribution {
 
 .hour-rain {
     font-size: 0.75rem;
-    color: #3a7fb5;
+    color: #164a7a;
 }
 
 .forecast-days {
@@ -588,22 +611,19 @@ body:has(.spinner) .attribution {
 .forecast-icon {
     font-size: 1.25rem;
     text-align: center;
-    color: rgb(79, 160, 134);
+    color: #236b55;
 }
 
 .forecast-rain {
     font-size: 0.85rem;
-    color: #3a7fb5;
+    color: #164a7a;
 }
 
 .forecast-temps {
     white-space: nowrap;
 }
 
-.forecast-low {
-    color: rgb(150, 150, 150);
-}
-
+/* Lows in the normal text colour, highs in bold. A paler grey for lows would be too faint to read easily */
 .forecast-high {
     font-weight: bold;
 }
