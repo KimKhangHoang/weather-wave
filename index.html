@@ -14,13 +14,6 @@
         <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
         <link rel="manifest" href="icons/site.webmanifest" />
         <link rel="stylesheet" href="style.css" />
-        <link
-            rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-            integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
-            crossorigin="anonymous"
-            referrerpolicy="no-referrer"
-        />
     </head>
     <body>
         <h1><img class="logo" src="icons/favicon.svg" alt="" />WeatherWave</h1>
@@ -42,9 +35,8 @@
                     aria-controls="suggestions"
                     aria-expanded="false"
                 />
-                <button type="button" id="useLocation" aria-label="Use my location" title="Use my location">
-                    <span class="fa-solid fa-location-crosshairs" aria-hidden="true"></span>
-                </button>
+                <!-- Its crosshair icon is added by script.js, from icons.js -->
+                <button type="button" id="useLocation" aria-label="Use my location" title="Use my location"></button>
                 <button id="searchWeather">Search</button>
                 <!-- Matching places, filled in by script.js while typing -->
                 <ul id="suggestions" class="suggestions" role="listbox" aria-label="Matching places" hidden></ul>
@@ -81,6 +73,7 @@
             >
         </footer>
 
+        <script src="icons.js"></script>
         <script src="script.js"></script>
 
         <!-- Visit counting by GoatCounter (no IP addresses stored). Visits from localhost aren't counted. -->

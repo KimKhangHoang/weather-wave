@@ -24,7 +24,7 @@ Try it at [kimkhanghoang.github.io/weather-wave](https://kimkhanghoang.github.io
 - HTML, CSS and JavaScript, with no frameworks or build step
 - [Open-Meteo](https://open-meteo.com/) for weather data and place search (no API key required)
 - [OpenStreetMap Nominatim](https://nominatim.org/) for naming your location
-- [Font Awesome](https://fontawesome.com/) for icons
+- Icons from [Font Awesome](https://fontawesome.com/) Free ([CC BY 4.0](https://fontawesome.com/license/free)), built into the app as SVG so no icon library is downloaded
 - [GoatCounter](https://www.goatcounter.com/) for visit counts
 
 ## Usage Stats
