@@ -523,6 +523,12 @@ async function showWeather(findPlace) {
     const weatherStatus = document.querySelector("#weatherStatus");
     removePreviousWeatherContainer();
     const spinner = displaySpinner(); // this search's own spinner, so a newer search can't mix up results
+
+    // On touch screens, close the on-screen keyboard so it doesn't cover the results.
+    // Computers keep the focus in the search box, so keyboard users can carry on typing.
+    if (window.matchMedia("(pointer: coarse)").matches) {
+        locationInput.blur();
+    }
     weatherStatus.textContent = "Loading the weather"; // also makes sure searching the same place twice is announced again
 
     let cardsHTML;

@@ -28,12 +28,14 @@
         <div class="search-bar-container">
             <div class="weather-search">
                 <!-- autocomplete off: the browser's own list of past entries would cover our suggestions.
+                     enterkeyhint labels the phone keyboard's Enter key as "Search" (or a magnifying glass).
                      The role and aria attributes tell screen readers this box offers a list of suggestions (script.js keeps them up to date). -->
                 <input
                     type="text"
                     id="location"
                     placeholder="Enter location"
                     autocomplete="off"
+                    enterkeyhint="search"
                     aria-label="Search for a place"
                     role="combobox"
                     aria-autocomplete="list"
