@@ -262,8 +262,10 @@ function getDevicePosition() {
 // Search on click
 document.getElementById("searchWeather").addEventListener("click", search);
 
-// Use my location on click
-document.getElementById("useLocation").addEventListener("click", searchMyLocation);
+// Use my location on click. The button shows a crosshair icon
+const useLocationButton = document.getElementById("useLocation");
+useLocationButton.innerHTML = iconSVG("location-crosshairs");
+useLocationButton.addEventListener("click", searchMyLocation);
 
 // Suggestions: while typing, matching places are listed under the search box to pick from
 const locationInput = document.getElementById("location");
