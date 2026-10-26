@@ -482,37 +482,37 @@ async function geocodeLocation(name) {
 }
 
 // Open-Meteo describes the sky with a number (a WMO weather code) instead of text and an icon.
-// This table turns each code into a description, a Font Awesome icon and a background sky (clear, cloudy, fog, rain, snow or storm).
+// This table turns each code into a description, an icon (from icons.js) and a background sky (clear, cloudy, fog, rain, snow or storm).
 // A nightIcon is only given where night looks different (e.g. moon instead of sun).
 const weatherCodes = {
-    0: { description: "clear sky", icon: "fa-sun", nightIcon: "fa-moon", sky: "clear" },
-    1: { description: "mainly clear", icon: "fa-cloud-sun", nightIcon: "fa-cloud-moon", sky: "clear" },
-    2: { description: "partly cloudy", icon: "fa-cloud-sun", nightIcon: "fa-cloud-moon", sky: "cloudy" },
-    3: { description: "overcast clouds", icon: "fa-cloud", sky: "cloudy" },
-    45: { description: "fog", icon: "fa-smog", sky: "fog" },
-    48: { description: "freezing fog", icon: "fa-smog", sky: "fog" },
-    51: { description: "light drizzle", icon: "fa-cloud-rain", sky: "rain" },
-    53: { description: "drizzle", icon: "fa-cloud-rain", sky: "rain" },
-    55: { description: "heavy drizzle", icon: "fa-cloud-rain", sky: "rain" },
-    56: { description: "light freezing drizzle", icon: "fa-cloud-rain", sky: "rain" },
-    57: { description: "freezing drizzle", icon: "fa-cloud-rain", sky: "rain" },
-    61: { description: "light rain", icon: "fa-cloud-rain", sky: "rain" },
-    63: { description: "moderate rain", icon: "fa-cloud-rain", sky: "rain" },
-    65: { description: "heavy rain", icon: "fa-cloud-showers-heavy", sky: "rain" },
-    66: { description: "light freezing rain", icon: "fa-snowflake", sky: "rain" },
-    67: { description: "freezing rain", icon: "fa-snowflake", sky: "rain" },
-    71: { description: "light snow", icon: "fa-snowflake", sky: "snow" },
-    73: { description: "snow", icon: "fa-snowflake", sky: "snow" },
-    75: { description: "heavy snow", icon: "fa-snowflake", sky: "snow" },
-    77: { description: "snow grains", icon: "fa-snowflake", sky: "snow" },
-    80: { description: "light rain showers", icon: "fa-cloud-sun-rain", nightIcon: "fa-cloud-moon-rain", sky: "rain" },
-    81: { description: "rain showers", icon: "fa-cloud-sun-rain", nightIcon: "fa-cloud-moon-rain", sky: "rain" },
-    82: { description: "heavy rain showers", icon: "fa-cloud-showers-heavy", sky: "rain" },
-    85: { description: "light snow showers", icon: "fa-snowflake", sky: "snow" },
-    86: { description: "heavy snow showers", icon: "fa-snowflake", sky: "snow" },
-    95: { description: "thunderstorm", icon: "fa-cloud-bolt", sky: "storm" },
-    96: { description: "thunderstorm with hail", icon: "fa-cloud-bolt", sky: "storm" },
-    99: { description: "thunderstorm with heavy hail", icon: "fa-cloud-bolt", sky: "storm" },
+    0: { description: "clear sky", icon: "sun", nightIcon: "moon", sky: "clear" },
+    1: { description: "mainly clear", icon: "cloud-sun", nightIcon: "cloud-moon", sky: "clear" },
+    2: { description: "partly cloudy", icon: "cloud-sun", nightIcon: "cloud-moon", sky: "cloudy" },
+    3: { description: "overcast clouds", icon: "cloud", sky: "cloudy" },
+    45: { description: "fog", icon: "smog", sky: "fog" },
+    48: { description: "freezing fog", icon: "smog", sky: "fog" },
+    51: { description: "light drizzle", icon: "cloud-rain", sky: "rain" },
+    53: { description: "drizzle", icon: "cloud-rain", sky: "rain" },
+    55: { description: "heavy drizzle", icon: "cloud-rain", sky: "rain" },
+    56: { description: "light freezing drizzle", icon: "cloud-rain", sky: "rain" },
+    57: { description: "freezing drizzle", icon: "cloud-rain", sky: "rain" },
+    61: { description: "light rain", icon: "cloud-rain", sky: "rain" },
+    63: { description: "moderate rain", icon: "cloud-rain", sky: "rain" },
+    65: { description: "heavy rain", icon: "cloud-showers-heavy", sky: "rain" },
+    66: { description: "light freezing rain", icon: "snowflake", sky: "rain" },
+    67: { description: "freezing rain", icon: "snowflake", sky: "rain" },
+    71: { description: "light snow", icon: "snowflake", sky: "snow" },
+    73: { description: "snow", icon: "snowflake", sky: "snow" },
+    75: { description: "heavy snow", icon: "snowflake", sky: "snow" },
+    77: { description: "snow grains", icon: "snowflake", sky: "snow" },
+    80: { description: "light rain showers", icon: "cloud-sun-rain", nightIcon: "cloud-moon-rain", sky: "rain" },
+    81: { description: "rain showers", icon: "cloud-sun-rain", nightIcon: "cloud-moon-rain", sky: "rain" },
+    82: { description: "heavy rain showers", icon: "cloud-showers-heavy", sky: "rain" },
+    85: { description: "light snow showers", icon: "snowflake", sky: "snow" },
+    86: { description: "heavy snow showers", icon: "snowflake", sky: "snow" },
+    95: { description: "thunderstorm", icon: "cloud-bolt", sky: "storm" },
+    96: { description: "thunderstorm with hail", icon: "cloud-bolt", sky: "storm" },
+    99: { description: "thunderstorm with heavy hail", icon: "cloud-bolt", sky: "storm" },
 };
 
 // Show the weather card and forecast card for a place, with a spinner while waiting.
@@ -624,23 +624,23 @@ function weatherCardHTML(placeName, dataWeather) {
             <div id="time">${time}</div>
          </div>
          <h2>${escapeHTML(placeName)}</h2>
-         <span id="weather-icon" class="fa-solid ${weatherIcon}" aria-hidden="true"></span>
+         <span id="weather-icon">${iconSVG(weatherIcon)}</span>
          <div>${weatherDescription}</div>
          <div id="temp" data-celsius="${temperature}">${formatTemperature(temperature)}</div>
          <div id="feels-like">Feels like <span data-celsius="${feelsLike}">${formatTemperature(feelsLike)}</span></div>
          <div class="weather-stats">
             <div class="weather-block" id="humidity">
-               <span class="fa-solid fa-droplet"></span>
+               <span class="stat-icon">${iconSVG("droplet")}</span>
                <p>Humidity</p>
                ${humidity}%
             </div>
             <div class="weather-block" id="wind">
-               <span class="fa-solid fa-wind"></span>
+               <span class="stat-icon">${iconSVG("wind")}</span>
                <p>Wind</p>
                ${wind}km/h
             </div>
             <div class="weather-block" id="rain">
-               <span class="fa-solid fa-cloud-rain"></span>
+               <span class="stat-icon">${iconSVG("cloud-rain")}</span>
                <p>Precipitation</p>
                ${rain}mm
             </div>
@@ -650,7 +650,7 @@ function weatherCardHTML(placeName, dataWeather) {
 
 // Look up a weather code's description, icon and sky, with a fallback for any code not in the table
 function conditionFor(code) {
-    return weatherCodes[code] || { description: "unknown", icon: "fa-cloud", sky: "cloudy" };
+    return weatherCodes[code] || { description: "unknown", icon: "cloud", sky: "cloudy" };
 }
 
 // Build the forecast card: the next 24 hours at the top, then one row per day with its icon, chance of rain, and low / high temperature.
@@ -667,8 +667,8 @@ function forecastCardHTML(dataWeather) {
             return `
          <li class="forecast-day">
             <span class="forecast-name">${i === 0 ? "Today" : dayName(day)}</span>
-            <span class="forecast-icon fa-solid ${condition.icon}" role="img" aria-label="${description}" title="${description}"></span>
-            <span class="forecast-rain"><span class="fa-solid fa-droplet" aria-hidden="true"></span> ${rainChance == null ? "–" : rainChance + "%"}</span>
+            <span class="forecast-icon">${iconSVG(condition.icon, description)}</span>
+            <span class="forecast-rain">${iconSVG("droplet")} ${rainChance == null ? "–" : rainChance + "%"}</span>
             <span class="forecast-temps">
                <span class="forecast-low" data-celsius="${low}" data-short>${formatTemperature(low, false)}</span> /
                <span class="forecast-high" data-celsius="${high}" data-short>${formatTemperature(high, false)}</span>
@@ -702,9 +702,9 @@ function hourlyStripHTML(hourly, currentTime) {
             return `
          <li class="hour">
             <span class="hour-time">${n === 0 ? "Now" : time.slice(11)}</span>
-            <span class="hour-icon fa-solid ${icon}" role="img" aria-label="${description}" title="${description}"></span>
+            <span class="hour-icon">${iconSVG(icon, description)}</span>
             <span class="hour-temp" data-celsius="${temperature}" data-short>${formatTemperature(temperature, false)}</span>
-            <span class="hour-rain"><span class="fa-solid fa-droplet" aria-hidden="true"></span> ${rainChance == null ? "–" : rainChance + "%"}</span>
+            <span class="hour-rain">${iconSVG("droplet")} ${rainChance == null ? "–" : rainChance + "%"}</span>
          </li>`;
         })
         .join("");

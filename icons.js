@@ -71,12 +71,11 @@ const icons = {
 };
 
 // Build an icon as inline SVG, sized like text (1em tall, as wide as its shape needs) and drawn in the current text colour.
-// className adds classes for styling, e.g. "hour-icon".
 // With a label (e.g. "Light rain"), screen readers read it out and hovering shows it as a tooltip. Without one, screen readers skip the icon.
-function iconSVG(name, className = "", label = "") {
+function iconSVG(name, label = "") {
     const icon = icons[name];
     const width = icon.width / 512; // in em, so it scales with the font size like the old icons did
     const labelling = label ? `role="img" aria-label="${label}"` : `aria-hidden="true"`;
     const tooltip = label ? `<title>${label}</title>` : "";
-    return `<svg class="icon ${className}" viewBox="0 0 ${icon.width} 512" width="${width}em" height="1em" fill="currentColor" ${labelling}>${tooltip}<path d="${icon.path}" /></svg>`;
+    return `<svg class="icon" viewBox="0 0 ${icon.width} 512" width="${width}em" height="1em" fill="currentColor" ${labelling}>${tooltip}<path d="${icon.path}" /></svg>`;
 }

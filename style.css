@@ -479,6 +479,24 @@ body:has(.spinner) .attribution {
     margin-bottom: 0rem;
 }
 
+/* Icons from icons.js sit on the line like a letter, dipping slightly below it the same way Font Awesome's did */
+.icon {
+    vertical-align: -0.125em;
+}
+
+/* Icon holders are exactly as tall as the icon, rather than a full line of text */
+.stat-icon,
+.hour-icon,
+.forecast-icon {
+    line-height: 1;
+}
+
+.stat-icon .icon,
+.hour-icon .icon,
+.forecast-icon .icon {
+    vertical-align: top;
+}
+
 /* Main weather icon, sized to take up the same space as the old 7rem image.
    All the weather icons use this deep green, dark enough to stand out clearly from the pale panels. */
 #weather-icon {
@@ -512,7 +530,7 @@ body:has(.spinner) .attribution {
     min-width: 0;
 }
 
-.weather-block span.fa-solid {
+.weather-block .stat-icon {
     display: block;
     font-size: 1.5rem;
     margin-bottom: 0.5rem;
